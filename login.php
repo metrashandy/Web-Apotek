@@ -42,48 +42,57 @@ require "koneksi.php";
 
         <!-- PHP LOGIN -->
         <?php
+        session_start();
+        require 'koneksi.php'; // Pastikan file koneksi tersedia
+
         if (isset($_POST['tombolLogin'])) {
-            $username = htmlspecialchars($_POST['username']);
-            $password = ($_POST['password']);
+            $username = htmlspecialchars(trim($_POST['username']));
+            $password = trim($_POST['password']);
 
-            $query = mysqli_query($koneksi, "SELECT * FROM tb_pegawai WHERE username='$username'");
-            $hitungData = mysqli_num_rows($query);
-            $data = mysqli_fetch_array($query);
+            // Cek login sebagai admin
+            $stmt = $koneksi->prepare("SELECT * FROM tb_pegawai WHERE Nip = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $data = $result->fetch_assoc();
 
-            if ($hitungData > 0) {
-                if ($password == $data['passwd']) {
+            if ($data) {
+                if ($password === $data['passwd']) { // Perbandingan password biasa
                     $_SESSION['username'] = $data['Nama_pegawai'];
                     $_SESSION['login'] = true;
-                    $_SESSION['admin'] = true;
-                    header('location: admin.php');
+                    $_SESSION['role'] = 'admin'; // Tentukan role
+                    header('Location: admin.php');
+                    exit();
                 } else {
-        ?>
-                    <div class="alert alert-warning">Password Salah!</div>
-                <?php
+                    echo '<div class="alert alert-warning">Password Salah!</div>';
                 }
             } else {
-                $query = mysqli_query($koneksi, "SELECT * FROM tb_pelanggan WHERE NAMA_PELANGGAN='$username'");
-                $hitungData = mysqli_num_rows($query);
-                $data = mysqli_fetch_array($query);
+                // Cek login sebagai user
+                $stmt = $koneksi->prepare("SELECT * FROM tb_pelanggan WHERE username = ?");
+                $stmt->bind_param("s", $username);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $data = $result->fetch_assoc();
 
-                if ($hitungData > 0) {
-                    if (password_verify($password, $data['PASSWORD'])) {
-                        $_SESSION['username'] = $data['NAMA_PELANGGAN'];
+                if ($data) {
+                    if ($password === $data['password']) { // Perbandingan password biasa
+                        $_SESSION['username'] = $data['Nama_pelanggan'];
                         $_SESSION['login'] = true;
-                        header('location: home.php');
+                        $_SESSION['role'] = 'user'; // Tentukan role
+                        header('Location: home.php');
+                        exit();
                     } else {
-                ?>
-                        <div class="alert alert-warning">Password Salah!</div>
-                    <?php
+                        echo '<div class="alert alert-warning">Password Salah!</div>';
                     }
                 } else {
-                    ?>
-                    <div class="alert alert-warning">Akun Tidak Tersedia!</div>
-        <?php
+                    echo '<div class="alert alert-warning">Akun Tidak Tersedia!</div>';
                 }
             }
+
+            $stmt->close();
         }
         ?>
+
     </section>
 </body>
 

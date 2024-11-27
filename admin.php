@@ -1,4 +1,5 @@
 <?php
+require "session.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
