@@ -25,7 +25,7 @@ if ($action == "add") {
   $nip = "";
   $passwd = "";
 } else if ($action == "edit") {
-  $currentid = $_GET['NIP'];
+  $currentid = $_GET['Id_pegawai'];
   $query = "SELECT * FROM tb_pegawai WHERE Id_pegawai = '" . $currentid . "';";
 
   //print_r($query);
