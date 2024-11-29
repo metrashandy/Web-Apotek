@@ -1,6 +1,9 @@
 <?php
 session_start();
 require "koneksi.php";
+if ($_SESSION['admin'] == false) {
+    header('location: home.php');
+  }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,8 +45,6 @@ require "koneksi.php";
 
         <!-- PHP LOGIN -->
         <?php
-        session_start();
-        require 'koneksi.php'; // Pastikan file koneksi tersedia
 
         if (isset($_POST['tombolLogin'])) {
             $username = htmlspecialchars(trim($_POST['username']));
