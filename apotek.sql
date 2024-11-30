@@ -25,12 +25,14 @@ CREATE TABLE `tb_jenis_obat` (
   `nama_jenis` varchar(15) NOT NULL,
   `bentuk_obat` enum('Tablet','Sirup','kapsul') NOT NULL,
   PRIMARY KEY (`Id_jenis`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_jenis_obat` */
 
 insert  into `tb_jenis_obat`(`Id_jenis`,`nama_jenis`,`bentuk_obat`) values 
-(1,'obat_bius','Sirup');
+(1,'obat_bius','Sirup'),
+(2,'anti depresan','Tablet'),
+(3,'anti depresan','Sirup');
 
 /*Table structure for table `tb_obat` */
 
@@ -45,12 +47,13 @@ CREATE TABLE `tb_obat` (
   PRIMARY KEY (`Id_Obat`),
   KEY `Id_jenis` (`Id_jenis`),
   CONSTRAINT `tb_obat_ibfk_1` FOREIGN KEY (`Id_jenis`) REFERENCES `tb_jenis_obat` (`Id_jenis`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_obat` */
 
 insert  into `tb_obat`(`Id_Obat`,`Nama_Obat`,`Stok_obat`,`Harga_satuan`,`Id_jenis`) values 
-(1,'gtw',50,10000,1);
+(1,'gtw',50,10000,1),
+(2,'ya',40,799,2);
 
 /*Table structure for table `tb_pegawai` */
 
@@ -64,12 +67,12 @@ CREATE TABLE `tb_pegawai` (
   `Nip` varchar(10) NOT NULL,
   `passwd` varchar(10) NOT NULL,
   PRIMARY KEY (`Id_pegawai`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pegawai` */
 
 insert  into `tb_pegawai`(`Id_pegawai`,`Nama_pegawai`,`No_tlp`,`email`,`Nip`,`passwd`) values 
-(1,'metra','809-','xsxsxs','makarov','admin123');
+(1,'metra','809ffff','edd@gmail.com','2305551110','admin123');
 
 /*Table structure for table `tb_pelanggan` */
 
@@ -96,17 +99,19 @@ DROP TABLE IF EXISTS `tb_pembelian`;
 
 CREATE TABLE `tb_pembelian` (
   `Id_pembelian` int(5) NOT NULL AUTO_INCREMENT,
-  `tanggal_pembelian` datetime NOT NULL,
-  `tanggal_kadarluarsa` datetime NOT NULL,
-  `jumlah_item` int(5) NOT NULL,
-  `harga_satuan` int(10) NOT NULL,
+  `tanggal_pembelian` date NOT NULL,
+  `total_item` int(5) NOT NULL,
+  `total_harga` int(10) NOT NULL,
   `Id_suplier` int(3) DEFAULT NULL,
   PRIMARY KEY (`Id_pembelian`),
   KEY `Id_suplier` (`Id_suplier`),
-  CONSTRAINT `tb_pembelian_ibfk_1` FOREIGN KEY (`Id_suplier`) REFERENCES `tb_penjualan` (`Id_penjualan`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `tb_pembelian_ibfk_2` FOREIGN KEY (`Id_suplier`) REFERENCES `tb_suplier` (`Id_suplier`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pembelian` */
+
+insert  into `tb_pembelian`(`Id_pembelian`,`tanggal_pembelian`,`total_item`,`total_harga`,`Id_suplier`) values 
+(1,'2024-11-17',90,9000,2);
 
 /*Table structure for table `tb_pembelian_detail` */
 
@@ -115,9 +120,9 @@ DROP TABLE IF EXISTS `tb_pembelian_detail`;
 CREATE TABLE `tb_pembelian_detail` (
   `Id_obat` int(3) DEFAULT NULL,
   `Id_pembelian` int(5) DEFAULT NULL,
-  `tanggal_kadarluarsa` datetime DEFAULT NULL,
+  `tanggal_kadarluarsa` date DEFAULT NULL,
   `jumlah_item` int(5) DEFAULT NULL,
-  `harga satuan` int(10) DEFAULT NULL,
+  `harga_satuan` int(10) DEFAULT NULL,
   KEY `Id_obat` (`Id_obat`),
   KEY `Id_pembelian` (`Id_pembelian`),
   CONSTRAINT `tb_pembelian_detail_ibfk_1` FOREIGN KEY (`Id_obat`) REFERENCES `tb_obat` (`Id_Obat`),
@@ -125,6 +130,10 @@ CREATE TABLE `tb_pembelian_detail` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pembelian_detail` */
+
+insert  into `tb_pembelian_detail`(`Id_obat`,`Id_pembelian`,`tanggal_kadarluarsa`,`jumlah_item`,`harga_satuan`) values 
+(1,1,'2025-05-23',45,6000),
+(2,1,'2025-02-21',45,700);
 
 /*Table structure for table `tb_penjualan` */
 
@@ -170,9 +179,13 @@ CREATE TABLE `tb_suplier` (
   `email` varchar(15) NOT NULL,
   `no_tlp` varchar(15) NOT NULL,
   PRIMARY KEY (`Id_suplier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_suplier` */
+
+insert  into `tb_suplier`(`Id_suplier`,`Nama_suplier`,`Alamat`,`email`,`no_tlp`) values 
+(1,'kimia farma','denpasar','kimi@gmail.com','0987523145'),
+(2,'farmasi','denpasar','far@gmail.com','098654');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

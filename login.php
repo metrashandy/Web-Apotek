@@ -1,9 +1,6 @@
 <?php
 session_start();
 require "koneksi.php";
-if ($_SESSION['admin'] == false) {
-    header('location: home.php');
-  }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -62,7 +59,7 @@ if ($_SESSION['admin'] == false) {
                     $_SESSION['username'] = $data['Nama_pegawai'];
                     $_SESSION['login'] = true;
                     $_SESSION['role'] = 'admin'; // Tentukan role
-                    header('Location: admin.php');
+                    header('Location: index.php');
                     exit();
                 } else {
                     echo '<div class="alert alert-warning">Password Salah!</div>';
