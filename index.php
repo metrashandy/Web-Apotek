@@ -30,7 +30,8 @@ require "session.php";
             margin-bottom: 15px;
         }
 
-        .sidebar ul li a, .sidebar ul li button {
+        .sidebar ul li a,
+        .sidebar ul li button {
             color: white;
             text-decoration: none;
         }
@@ -41,7 +42,8 @@ require "session.php";
             cursor: pointer;
         }
 
-        .sidebar ul li a:hover, .sidebar ul li button:hover {
+        .sidebar ul li a:hover,
+        .sidebar ul li button:hover {
             color: #00bfff;
         }
 
@@ -71,9 +73,11 @@ require "session.php";
                         </button>
                         <div class="collapse" id="master-collapse">
                             <ul class="ps-3">
-                                <li><a href="index.php?page=pembelian">Pembelian</a></li>
+                                <li><a href="index.php?page=pembelian">Barang Kadarluarsa</a></li>
+                                <li><a href="index.php?page=pembelian">Barang Akan Kadarluarsa</a></li>
                                 <li><a href="index.php?page=obat">Barang</a></li>
                                 <li><a href="index.php?page=pegawai">Pegawai</a></li>
+                                <li><a href="index.php?page=suplier">Suplier</a></li>
                             </ul>
                         </div>
                     </li>
@@ -83,8 +87,8 @@ require "session.php";
                         </button>
                         <div class="collapse" id="orders-collapse">
                             <ul class="ps-3">
-                                <li><a href="index.php?page=booking">Booking</a></li>
-                                <li><a href="index.php?page=pesanan">Penyewaan</a></li>
+                                <li><a href="index.php?page=pembelian">Pembelian</a></li>
+                                <li><a href="index.php?page=penjualan">Penjualan</a></li>
                             </ul>
                         </div>
                     </li>

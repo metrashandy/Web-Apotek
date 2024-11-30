@@ -67,12 +67,15 @@ CREATE TABLE `tb_pegawai` (
   `Nip` varchar(10) NOT NULL,
   `passwd` varchar(10) NOT NULL,
   PRIMARY KEY (`Id_pegawai`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pegawai` */
 
 insert  into `tb_pegawai`(`Id_pegawai`,`Nama_pegawai`,`No_tlp`,`email`,`Nip`,`passwd`) values 
-(1,'metra','809ffff','edd@gmail.com','2305551110','admin123');
+(1,'metra','809ffff','edd@gmail.com','2305551110','admin123'),
+(6,'','','anindyaputri287','',''),
+(7,'','','anindyaputri287','',''),
+(8,'','','anindyaputri287','','');
 
 /*Table structure for table `tb_pelanggan` */
 
@@ -179,7 +182,7 @@ CREATE TABLE `tb_suplier` (
   `email` varchar(15) NOT NULL,
   `no_tlp` varchar(15) NOT NULL,
   PRIMARY KEY (`Id_suplier`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_suplier` */
 
