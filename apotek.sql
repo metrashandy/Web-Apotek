@@ -23,16 +23,23 @@ DROP TABLE IF EXISTS `tb_jenis_obat`;
 CREATE TABLE `tb_jenis_obat` (
   `Id_jenis` int(3) NOT NULL AUTO_INCREMENT,
   `nama_jenis` varchar(15) NOT NULL,
-  `bentuk_obat` enum('Tablet','Sirup','kapsul') NOT NULL,
+  `bentuk_obat` enum('Tablet','Sirup','kapsul','bubuk','makanan') NOT NULL,
   PRIMARY KEY (`Id_jenis`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_jenis_obat` */
 
 insert  into `tb_jenis_obat`(`Id_jenis`,`nama_jenis`,`bentuk_obat`) values 
-(1,'obat_bius','Sirup'),
-(2,'anti depresan','Tablet'),
-(3,'anti depresan','Sirup');
+(1,'Obat','Sirup'),
+(2,'Obat','Tablet'),
+(3,'Obat','kapsul'),
+(4,'Suplemen','Tablet'),
+(5,'Suplemen','kapsul'),
+(6,'Vitamin','Tablet'),
+(7,'Vitamin','kapsul'),
+(8,'Vitamin','Sirup'),
+(9,'Produk Bayi','bubuk'),
+(10,'Produk Bayi','makanan');
 
 /*Table structure for table `tb_obat` */
 
@@ -47,13 +54,15 @@ CREATE TABLE `tb_obat` (
   PRIMARY KEY (`Id_Obat`),
   KEY `Id_jenis` (`Id_jenis`),
   CONSTRAINT `tb_obat_ibfk_1` FOREIGN KEY (`Id_jenis`) REFERENCES `tb_jenis_obat` (`Id_jenis`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_obat` */
 
 insert  into `tb_obat`(`Id_Obat`,`Nama_Obat`,`Stok_obat`,`Harga_satuan`,`Id_jenis`) values 
-(1,'gtw',50,10000,1),
-(2,'ya',40,799,2);
+(1,'gtw',49,10000,1),
+(2,'ya',39,799,2),
+(5,'',0,0,1),
+(6,'mugi',90,1256,8);
 
 /*Table structure for table `tb_pegawai` */
 
@@ -109,12 +118,13 @@ CREATE TABLE `tb_pembelian` (
   PRIMARY KEY (`Id_pembelian`),
   KEY `Id_suplier` (`Id_suplier`),
   CONSTRAINT `tb_pembelian_ibfk_2` FOREIGN KEY (`Id_suplier`) REFERENCES `tb_suplier` (`Id_suplier`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pembelian` */
 
 insert  into `tb_pembelian`(`Id_pembelian`,`tanggal_pembelian`,`total_item`,`total_harga`,`Id_suplier`) values 
-(1,'2024-11-17',90,9000,2);
+(1,'2024-11-17',90,9000,2),
+(2,'2025-01-11',50,2250000,1);
 
 /*Table structure for table `tb_pembelian_detail` */
 
@@ -136,7 +146,7 @@ CREATE TABLE `tb_pembelian_detail` (
 
 insert  into `tb_pembelian_detail`(`Id_obat`,`Id_pembelian`,`tanggal_kadarluarsa`,`jumlah_item`,`harga_satuan`) values 
 (1,1,'2025-05-23',45,6000),
-(2,1,'2025-02-21',45,700);
+(6,2,'2025-01-11',50,45000);
 
 /*Table structure for table `tb_penjualan` */
 
@@ -144,16 +154,20 @@ DROP TABLE IF EXISTS `tb_penjualan`;
 
 CREATE TABLE `tb_penjualan` (
   `Id_penjualan` int(5) NOT NULL AUTO_INCREMENT,
-  `Tanggal_penjualan` datetime NOT NULL,
-  `jumlah_item` int(3) NOT NULL,
+  `Tanggal_penjualan` date NOT NULL,
+  `Total_item` int(3) NOT NULL,
   `harga_total` int(8) NOT NULL,
-  `Id_pelanggan` int(3) DEFAULT NULL,
+  `Id_pelanggan` int(3) NOT NULL,
   PRIMARY KEY (`Id_penjualan`),
   KEY `Id_pelanggan` (`Id_pelanggan`),
   CONSTRAINT `tb_penjualan_ibfk_1` FOREIGN KEY (`Id_pelanggan`) REFERENCES `tb_pelanggan` (`Id_pelanggan`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_penjualan` */
+
+insert  into `tb_penjualan`(`Id_penjualan`,`Tanggal_penjualan`,`Total_item`,`harga_total`,`Id_pelanggan`) values 
+(1,'2024-12-01',40,60000,1),
+(2,'2024-12-01',1,799,1);
 
 /*Table structure for table `tb_penjualan_detail` */
 
@@ -162,6 +176,7 @@ DROP TABLE IF EXISTS `tb_penjualan_detail`;
 CREATE TABLE `tb_penjualan_detail` (
   `Id_obat` int(3) DEFAULT NULL,
   `Id_penjualan` int(5) DEFAULT NULL,
+  `jumlah_item` int(5) DEFAULT NULL,
   `harga_satuan` int(8) DEFAULT NULL,
   KEY `Id_obat` (`Id_obat`),
   KEY `Id_penjualan` (`Id_penjualan`),
@@ -170,6 +185,10 @@ CREATE TABLE `tb_penjualan_detail` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_penjualan_detail` */
+
+insert  into `tb_penjualan_detail`(`Id_obat`,`Id_penjualan`,`jumlah_item`,`harga_satuan`) values 
+(6,1,20,30000),
+(1,1,20,30000);
 
 /*Table structure for table `tb_suplier` */
 
