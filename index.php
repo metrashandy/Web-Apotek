@@ -66,7 +66,7 @@ require "session.php";
             <!-- Sidebar -->
             <div class="col-2 sidebar">
                 <ul>
-                    <li><a href="index.php?page=dasboard">Dashboard</a></li>
+                    <li><a href="index.php?page=dashboard">Dashboard</a></li>
                     <li>
                         <button class="btn-toggle" onclick="toggleMenu('master-collapse')">
                             Master Data <span>&#9660;</span>

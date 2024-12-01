@@ -1,47 +1,94 @@
 <?php
+// Koneksi ke database
+$conn = new mysqli("localhost", "root", "", "apotek");
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
+}
 
-if ($_POST['action'] == 'add') {                //jika mode "add"
-    $id = $_POST['Id_Obat'];
-    $nama = isset($_POST['Nama_Obat']) ? $_POST['Nama_Obat'] : '';
-    $jenis = isset($_POST['Id_jenis']) ? $_POST['Id_jenis'] : '';
-    $stok = isset($_POST['Stok_obat']) ? $_POST['Stok_obat'] : '';
-    $harga = isset($_POST['Harga_satuan']) ? $_POST['Harga_satuan'] : '';
+// Ambil data dari form
+$action = $_POST['action'] ?? null;
+$Id_pembelian = $_POST['Id_pembelian'] ?? null;
+$tanggal_pembelian = $_POST['tanggal_pembelian'] ?? null;
+$Id_suplier = $_POST['Id_suplier'] ?? null;
+$total_item = $_POST['total_item'] ?? null;
+$total_harga = $_POST['total_harga'] ?? null;
+$Id_obat = $_POST['Id_obat'] ?? [];
+$tanggal_kadarluarsa = $_POST['tanggal_kadarluarsa'] ?? [];
+$jumlah_item = $_POST['jumlah_item'] ?? [];
+$harga_satuan = $_POST['harga_satuan'] ?? [];
 
+// Periksa mode berdasarkan action
+if ($action === 'add' || $action === 'edit') {
+    if ($action === 'add') {
+        // Tambah pembelian baru
+        $queryPembelian = "INSERT INTO tb_pembelian (tanggal_pembelian, Id_suplier, total_item, total_harga) 
+                           VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($queryPembelian);
+        $stmt->bind_param("ssii", $tanggal_pembelian, $Id_suplier, $total_item, $total_harga);
 
-    $mysqli = new mysqli("localhost", "root", "", "apotek");
-    $query = "INSERT INTO tb_obat VALUES('" . $id . "', '" . $nama . "', '" . $stok . "', '" . $harga . "', '" . $jenis . "');";
+        if ($stmt->execute()) {
+            $Id_pembelian = $stmt->insert_id;
+        } else {
+            die("Gagal menyimpan data pembelian: " . $conn->error);
+        }
+    } elseif ($action === 'edit') {
+        // Perbarui pembelian
+        $queryPembelian = "UPDATE tb_pembelian 
+                           SET tanggal_pembelian = ?, Id_suplier = ?, total_item = ?, total_harga = ? 
+                           WHERE Id_pembelian = ?";
+        $stmt = $conn->prepare($queryPembelian);
+        $stmt->bind_param("ssiii", $tanggal_pembelian, $Id_suplier, $total_item, $total_harga, $Id_pembelian);
 
-    echo $query;
-    $result = $mysqli->query($query);
+        if (!$stmt->execute()) {
+            die("Gagal memperbarui data pembelian: " . $conn->error);
+        }
 
-    if (!$result) {
-        die("Error: " . $mysqli->error);
+        // Hapus detail lama
+        $queryDeleteDetail = "DELETE FROM tb_pembelian_detail WHERE Id_pembelian = ?";
+        $stmt = $conn->prepare($queryDeleteDetail);
+        $stmt->bind_param("i", $Id_pembelian);
+        $stmt->execute();
     }
 
-    // $mysqli->query($query);
+    // Tambah detail pembelian
+    $queryDetail = "INSERT INTO tb_pembelian_detail (Id_pembelian, Id_obat, tanggal_kadarluarsa, jumlah_item, harga_satuan) 
+                    VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($queryDetail);
 
+    foreach ($Id_obat as $i => $obatId) {
+        $stmt->bind_param(
+            "issii",
+            $Id_pembelian,
+            $obatId,
+            $tanggal_kadarluarsa[$i],
+            $jumlah_item[$i],
+            $harga_satuan[$i]
+        );
 
-} else if ($_POST['action'] == 'edit') {
-    $id = $_POST['Id_Obat'];
-    $nama = isset($_POST['Nama_Obat']) ? $_POST['Nama_Obat'] : '';
-    $jenis = isset($_POST['Id_jenis']) ? $_POST['Id_jenis'] : '';
-    $stok = isset($_POST['Stok_obat']) ? $_POST['Stok_obat'] : '';
-    $harga = isset($_POST['Harga_satuan']) ? $_POST['Harga_satuan'] : '';
+        if (!$stmt->execute()) {
+            die("Gagal menyimpan detail pembelian: " . $conn->error);
+        }
 
-    $mysqli = new mysqli("localhost", "root", "", "apotek");
-    $query = "UPDATE tb_obat SET Nama_Obat='" . $nama . "', Stok_obat='" . $stok . "', Harga_satuan='" . $harga . "', Id_jenis='" . $jenis . "' WHERE Id_Obat='" . $id . "';";
+        // Update stok obat
+        $queryUpdateStok = "UPDATE tb_obat SET Stok_obat = Stok_obat + ? WHERE Id_Obat = ?";
+        $stmtUpdate = $conn->prepare($queryUpdateStok);
+        $stmtUpdate->bind_param("ii", $jumlah_item[$i], $obatId);
+        $stmtUpdate->execute();
+    }
+} elseif ($action === 'delete') {
+    $Id_pembelian = $_POST['Id_pembelian'] ?? null;
+    $Id_obat = $_POST['Id_obat'] ?? null;
 
-    $result = $mysqli->query($query);
-} else if ($_POST['action'] == 'delete') {
-    $id = $_POST['Id_pembelian'];
-    $obat = $_POST['Id_obat'];
+    if ($Id_pembelian && $Id_obat) {
+        // Hapus detail pembelian
+        $query = "DELETE FROM tb_pembelian_detail WHERE Id_pembelian = ? AND Id_obat = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $Id_pembelian, $Id_obat);
 
-    $mysqli = new mysqli("localhost", "root", "", "apotek");
-
-    $query = "DELETE FROM tb_pembelian_detail
-    WHERE Id_pembelian ='" . $id . "'
-    AND Id_obat = '" . $obat . "';";
-    $result = $mysqli->query($query);
+        if (!$stmt->execute()) {
+            die("Gagal menghapus detail pembelian: " . $conn->error);
+        }
+    }
 }
 
 header('Location: index.php?page=pembelian');
