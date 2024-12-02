@@ -89,7 +89,7 @@ require "koneksi.php";
                 $data = $result->fetch_assoc();
 
                 if ($data && password_verify($password, $hash)) {
-                    $_SESSION['username'] = $data['Nama_pelanggan'];
+                    $_SESSION['username'] = $data['username'];
                     $_SESSION['login'] = true;
                     $_SESSION['role'] = 'user';
                     header('Location: home.php');

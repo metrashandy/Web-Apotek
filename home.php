@@ -10,7 +10,7 @@
 
 <body>
   <!-- Navbar -->
-  <?php include "navbar.html"; ?>
+  <?php include "navbar.php"; ?>
 
   <section class="bg-blue-50 py-20">
     <div class="w-10/12 mx-auto flex flex-col md:flex-row items-center">
