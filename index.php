@@ -78,6 +78,7 @@ require "session.php";
                                 <li><a href="index.php?page=obat">Barang</a></li>
                                 <li><a href="index.php?page=pegawai">Pegawai</a></li>
                                 <li><a href="index.php?page=suplier">Suplier</a></li>
+                                <li><a href="index.php?page=pelanggan">Pelanggan</a></li>
                             </ul>
                         </div>
                     </li>

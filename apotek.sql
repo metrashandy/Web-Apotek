@@ -81,10 +81,7 @@ CREATE TABLE `tb_pegawai` (
 /*Data for the table `tb_pegawai` */
 
 insert  into `tb_pegawai`(`Id_pegawai`,`Nama_pegawai`,`No_tlp`,`email`,`Nip`,`passwd`) values 
-(1,'metra','809ffff','edd@gmail.com','2305551110','admin123'),
-(6,'','','anindyaputri287','',''),
-(7,'','','anindyaputri287','',''),
-(8,'','','anindyaputri287','','');
+(1,'metra','809ffff','edd@gmail.com','2305551110','admin123');
 
 /*Table structure for table `tb_pelanggan` */
 
@@ -92,7 +89,8 @@ DROP TABLE IF EXISTS `tb_pelanggan`;
 
 CREATE TABLE `tb_pelanggan` (
   `Id_pelanggan` int(4) NOT NULL AUTO_INCREMENT,
-  `Nama_pelanggan` varchar(15) NOT NULL,
+  `username` varchar(15) NOT NULL,
+  `email` varchar(15) NOT NULL,
   `no_tlp` varchar(15) NOT NULL,
   `alamat` varchar(10) NOT NULL,
   `password` varchar(15) NOT NULL,
@@ -101,9 +99,9 @@ CREATE TABLE `tb_pelanggan` (
 
 /*Data for the table `tb_pelanggan` */
 
-insert  into `tb_pelanggan`(`Id_pelanggan`,`Nama_pelanggan`,`no_tlp`,`alamat`,`password`) values 
-(1,'adam','d','d','user123'),
-(2,'Metra Shandy','1234567','0','1qaz2wsx');
+insert  into `tb_pelanggan`(`Id_pelanggan`,`username`,`email`,`no_tlp`,`alamat`,`password`) values 
+(1,'anonim','-','-','-','user123'),
+(2,'Metra Shandy','','1234567','0','1qaz2wsx');
 
 /*Table structure for table `tb_pembelian` */
 
