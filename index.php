@@ -73,8 +73,8 @@ require "session.php";
                         </button>
                         <div class="collapse" id="master-collapse">
                             <ul class="ps-3">
-                                <li><a href="index.php?page=pembelian">Barang Kadarluarsa</a></li>
-                                <li><a href="index.php?page=pembelian">Barang Akan Kadarluarsa</a></li>
+                                <li><a href="index.php?page=barangkadarluarsa">Barang Kadarluarsa</a></li>
+                                <li><a href="index.php?page=barangAkanKadarluarsa">Barang Akan Kadarluarsa</a></li>
                                 <li><a href="index.php?page=obat">Barang</a></li>
                                 <li><a href="index.php?page=pegawai">Pegawai</a></li>
                                 <li><a href="index.php?page=suplier">Suplier</a></li>
