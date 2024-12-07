@@ -30,7 +30,7 @@ if ($Id_penjualan) {
 }
 
 // Query untuk mendapatkan data pelanggan dan obat
-$queryPelanggan = "SELECT Id_pelanggan, Nama_pelanggan FROM tb_pelanggan";
+$queryPelanggan = "SELECT Id_pelanggan, username FROM tb_pelanggan";
 $resultPelanggan = $conn->query($queryPelanggan);
 
 $queryObat = "SELECT Id_Obat, Nama_Obat, Harga_Satuan FROM tb_obat";
@@ -146,7 +146,7 @@ $resultObat = $conn->query($queryObat);
             <?php while ($row = $resultPelanggan->fetch_assoc()) { ?>
                 <option value="<?php echo $row['Id_pelanggan']; ?>"
                     <?php echo ($dataPenjualan['Id_pelanggan'] ?? '') == $row['Id_pelanggan'] ? 'selected' : ''; ?>>
-                    <?php echo $row['Nama_pelanggan']; ?>
+                    <?php echo $row['username']; ?>
                 </option>
             <?php } ?>
         </select><br><br>

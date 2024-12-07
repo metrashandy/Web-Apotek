@@ -5,7 +5,7 @@
 <?php
 $mysqli = new mysqli("localhost", "root", "", "apotek");
 $result = $mysqli->query("SELECT tb_penjualan_detail.Id_penjualan, tb_penjualan.Tanggal_penjualan,
-tb_penjualan_detail.jumlah_item,tb_penjualan_detail.harga_satuan, tb_pelanggan.Nama_pelanggan 
+tb_penjualan_detail.jumlah_item,tb_penjualan_detail.harga_satuan, tb_pelanggan.username 
 AS pelanggan,
 tb_obat.Nama_Obat AS nama_obat,tb_penjualan_detail.Id_obat 
 FROM tb_penjualan

@@ -7,10 +7,139 @@
   <title>Home - Bailu Pharmacy</title>
   <link href="src/output.css" rel="stylesheet">
 </head>
+<style>
+    #popup table, #popup th, #popup td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+    }
+
+    #popup button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        background: #28a745;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    #popup button:hover {
+        background: #218838;
+    }
+</style>
+<script>
+    let cart = []; // Array untuk menyimpan pesanan sementara
+
+    function showPopup() {
+        document.getElementById('popup').style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+        renderCart();
+    }
+
+    function hidePopup() {
+        document.getElementById('popup').style.display = 'none';
+        document.getElementById('popup-overlay').style.display = 'none';
+    }
+
+    function addToCart(nama, harga) {
+        const item = cart.find(i => i.nama === nama);
+        if (item) {
+            item.jumlah++;
+        } else {
+            cart.push({ nama, harga, jumlah: 1 });
+        }
+        renderCart();
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        renderCart();
+    }
+
+    function updateQuantity(index, jumlah) {
+        if (jumlah > 0) {
+            cart[index].jumlah = jumlah;
+        }
+        renderCart();
+    }
+
+    function renderCart() {
+        const tbody = document.querySelector('#cart-table tbody');
+        const totalHargaEl = document.getElementById('total-harga');
+        tbody.innerHTML = '';
+        let totalHarga = 0;
+
+        cart.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.nama}</td>
+                <td>
+                    <input type="number" value="${item.jumlah}" min="1" onchange="updateQuantity(${index}, this.value)">
+                </td>
+                <td>Rp ${item.harga}</td>
+                <td>Rp ${item.harga * item.jumlah}</td>
+                <td><button onclick="removeFromCart(${index})">Hapus</button></td>
+            `;
+            tbody.appendChild(row);
+            totalHarga += item.harga * item.jumlah;
+        });
+
+        totalHargaEl.textContent = totalHarga;
+    }
+
+    function submitOrder() {
+        if (cart.length === 0) {
+            alert('Keranjang kosong!');
+            return;
+        }
+        // Kirim data ke backend
+        fetch('submit_order.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cart)
+        }).then(response => {
+            if (response.ok) {
+                alert('Pesanan berhasil dikonfirmasi!');
+                cart = []; // Reset keranjang
+                renderCart();
+                hidePopup();
+            } else {
+                alert('Gagal mengkonfirmasi pesanan.');
+            }
+        }).catch(error => {
+            console.error(error);
+            alert('Terjadi kesalahan.');
+        });
+    }
+</script>
+
 
 <body>
   <!-- Navbar -->
   <?php include "navbar.html"; ?>
+  <!-- Pop-Up -->
+<div id="popup" style="display: none; position: fixed; top: 10%; left: 10%; width: 80%; background: #fff; border: 1px solid #ccc; padding: 20px; z-index: 1000;">
+    <h2>Detail Pesanan</h2>
+    <table id="cart-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Nama Obat</th>
+                <th>Jumlah</th>
+                <th>Harga Satuan</th>
+                <th>Total</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <p><strong>Total Harga:</strong> Rp <span id="total-harga">0</span></p>
+    <button onclick="hidePopup()">Tutup</button>
+    <button onclick="submitOrder()">Konfirmasi Pesanan</button>
+</div>
+
+<!-- Overlay untuk Background Gelap -->
+<div id="popup-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;" onclick="hidePopup()"></div>
+
 
   <section class="bg-blue-50 py-20">
     <div class="w-10/12 mx-auto flex flex-col md:flex-row items-center">
@@ -70,8 +199,10 @@
           <img src="image/obat-antimo.jpg" alt="Produk 1" class="w-full h-32 object-contain mb-4" />
           <h3 class="text-lg font-semibold text-gray-700 mb-2">ANTIMO HERBAL 15 ML BOX 10 SACHET</h3>
           <p class="text-cyan-600 font-semibold mb-2">Rp 10.000</p>
-          <button class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition">Beli Sekarang</button>
+          <!-- Form Pemesanan -->
+          <button onclick="showPopup()">Pesan Sekarang</button>
         </div>
+
         <!-- Produk 2 -->
         <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
           <img src="image/obat-panadol.png" alt="Produk 2" class="w-full h-32 object-contain mb-4" />

@@ -54,15 +54,16 @@ CREATE TABLE `tb_obat` (
   PRIMARY KEY (`Id_Obat`),
   KEY `Id_jenis` (`Id_jenis`),
   CONSTRAINT `tb_obat_ibfk_1` FOREIGN KEY (`Id_jenis`) REFERENCES `tb_jenis_obat` (`Id_jenis`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_obat` */
 
 insert  into `tb_obat`(`Id_Obat`,`Nama_Obat`,`Stok_obat`,`Harga_satuan`,`Id_jenis`) values 
-(1,'gtw',49,10000,1),
+(1,'gtw',80,10000,1),
 (2,'ya',39,799,2),
 (5,'',0,0,1),
-(6,'mugi',90,1256,8);
+(6,'mugi',140,1256,8),
+(7,'bau',80,1256,4);
 
 /*Table structure for table `tb_pegawai` */
 
@@ -116,13 +117,15 @@ CREATE TABLE `tb_pembelian` (
   PRIMARY KEY (`Id_pembelian`),
   KEY `Id_suplier` (`Id_suplier`),
   CONSTRAINT `tb_pembelian_ibfk_2` FOREIGN KEY (`Id_suplier`) REFERENCES `tb_suplier` (`Id_suplier`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pembelian` */
 
 insert  into `tb_pembelian`(`Id_pembelian`,`tanggal_pembelian`,`total_item`,`total_harga`,`Id_suplier`) values 
 (1,'2024-11-17',90,9000,2),
-(2,'2025-01-11',50,2250000,1);
+(2,'2025-01-11',50,2250000,1),
+(3,'2024-12-07',40,400000,1),
+(4,'2024-12-07',40,400000,1);
 
 /*Table structure for table `tb_pembelian_detail` */
 
@@ -144,7 +147,9 @@ CREATE TABLE `tb_pembelian_detail` (
 
 insert  into `tb_pembelian_detail`(`Id_obat`,`Id_pembelian`,`tanggal_kadarluarsa`,`jumlah_item`,`harga_satuan`) values 
 (1,1,'2025-05-23',45,6000),
-(6,2,'2025-01-11',50,45000);
+(6,2,'2024-12-02',50,45000),
+(1,3,'2024-12-14',40,10000),
+(7,4,'2024-12-14',40,10000);
 
 /*Table structure for table `tb_penjualan` */
 
@@ -159,13 +164,14 @@ CREATE TABLE `tb_penjualan` (
   PRIMARY KEY (`Id_penjualan`),
   KEY `Id_pelanggan` (`Id_pelanggan`),
   CONSTRAINT `tb_penjualan_ibfk_1` FOREIGN KEY (`Id_pelanggan`) REFERENCES `tb_pelanggan` (`Id_pelanggan`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_penjualan` */
 
 insert  into `tb_penjualan`(`Id_penjualan`,`Tanggal_penjualan`,`Total_item`,`harga_total`,`Id_pelanggan`) values 
 (1,'2024-12-01',40,60000,1),
-(2,'2024-12-01',1,799,1);
+(2,'2024-12-01',1,799,1),
+(3,'2024-12-07',9,90000,1);
 
 /*Table structure for table `tb_penjualan_detail` */
 
@@ -186,7 +192,43 @@ CREATE TABLE `tb_penjualan_detail` (
 
 insert  into `tb_penjualan_detail`(`Id_obat`,`Id_penjualan`,`jumlah_item`,`harga_satuan`) values 
 (6,1,20,30000),
-(1,1,20,30000);
+(1,1,20,30000),
+(1,3,9,10000);
+
+/*Table structure for table `tb_pesanan` */
+
+DROP TABLE IF EXISTS `tb_pesanan`;
+
+CREATE TABLE `tb_pesanan` (
+  `Id_pesanan` int(4) NOT NULL,
+  `tanggal_pemesanan` date NOT NULL,
+  `Total_item` int(8) NOT NULL,
+  `Harga_total` int(8) NOT NULL,
+  `Id_pelanggan` int(4) NOT NULL,
+  `status` enum('DIBATALKAN','PENDING','SELESAI') NOT NULL,
+  PRIMARY KEY (`Id_pesanan`),
+  KEY `Id_pelanggan` (`Id_pelanggan`),
+  CONSTRAINT `tb_pesanan_ibfk_1` FOREIGN KEY (`Id_pelanggan`) REFERENCES `tb_pelanggan` (`Id_pelanggan`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `tb_pesanan` */
+
+/*Table structure for table `tb_pesanan_detail` */
+
+DROP TABLE IF EXISTS `tb_pesanan_detail`;
+
+CREATE TABLE `tb_pesanan_detail` (
+  `Id_pesanan` int(4) DEFAULT NULL,
+  `Id_obat` int(4) DEFAULT NULL,
+  `jumlah_item` int(11) DEFAULT NULL,
+  `harga_satuan` int(11) DEFAULT NULL,
+  KEY `Id_pesanan` (`Id_pesanan`),
+  KEY `Id_obat` (`Id_obat`),
+  CONSTRAINT `tb_pesanan_detail_ibfk_1` FOREIGN KEY (`Id_pesanan`) REFERENCES `tb_pesanan` (`Id_pesanan`),
+  CONSTRAINT `tb_pesanan_detail_ibfk_2` FOREIGN KEY (`Id_obat`) REFERENCES `tb_obat` (`Id_Obat`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `tb_pesanan_detail` */
 
 /*Table structure for table `tb_suplier` */
 

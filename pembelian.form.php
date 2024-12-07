@@ -200,8 +200,7 @@ $resultJenis = $conn->query($queryJenis);
             <label for="namaObatBaru">Nama Obat:</label>
             <input type="text" name="Nama_Obat" id="Nama_Obat" required><br><br>
 
-            <label for="stokObatBaru">Stok Obat:</label>
-            <input type="text" name="Stok_Obat" id="Stok_obat" min="1" required><br><br>
+            <input type="hidden" name="Stok_Obat" value="0"> <!-- Stok otomatis diatur ke 0 -->
 
             <label for="hargaObatBaru">Harga Satuan:</label>
             <input type="text" name="Harga_satuan" id="Harga_satuan" min="1" required><br><br>
