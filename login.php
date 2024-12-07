@@ -90,7 +90,7 @@ require "koneksi.php";
 
                 if ($data && password_verify($password, $hash)) {
                     // Set data pelanggan ke sesi
-                    $_SESSION['username'] = $data['Nama_pelanggan'];
+                    $_SESSION['username'] = $data['username'];
                     $_SESSION['id_pelanggan'] = $data['Id_pelanggan']; // Simpan ID pelanggan ke sesi
                     $_SESSION['login'] = true;
                     $_SESSION['role'] = 'user';
