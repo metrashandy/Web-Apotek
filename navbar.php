@@ -16,10 +16,10 @@
       <a href="home.php" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700"><span>HOME</span></a>
       <a href="shop.php" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700"><span>SHOP</span></a>
       <a href="#" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700"><span>ABOUT</span></a>
+      
     </div>
     <div class="basis-1/4 flex justify-end items-center">
       <?php
-      session_start();
       if (isset($_SESSION['login']) && $_SESSION['login'] === true && isset($_SESSION['username'])) {
         echo '<span class="px-4 py-2 text-cyan-600 font-semibold rounded-lg">' . htmlspecialchars($_SESSION['username']) . '</span>';
         echo '<a href="logout.php" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 ml-4">LOGOUT</a>';

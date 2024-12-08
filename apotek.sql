@@ -59,8 +59,8 @@ CREATE TABLE `tb_obat` (
 /*Data for the table `tb_obat` */
 
 insert  into `tb_obat`(`Id_Obat`,`Nama_Obat`,`Stok_obat`,`Harga_satuan`,`Id_jenis`) values 
-(1,'gtw',80,10000,1),
-(2,'ya',39,799,2),
+(1,'gtw',76,10000,1),
+(2,'ya',36,799,2),
 (5,'',0,0,1),
 (6,'mugi',140,1256,8),
 (7,'bau',80,1256,4);
@@ -96,13 +96,14 @@ CREATE TABLE `tb_pelanggan` (
   `alamat` varchar(10) NOT NULL,
   `password` varchar(15) NOT NULL,
   PRIMARY KEY (`Id_pelanggan`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pelanggan` */
 
 insert  into `tb_pelanggan`(`Id_pelanggan`,`username`,`email`,`no_tlp`,`alamat`,`password`) values 
 (1,'anonim','-','-','-','user123'),
-(2,'Metra Shandy','','1234567','0','1qaz2wsx');
+(2,'Metra Shandy','','1234567','0','1qaz2wsx'),
+(3,'1qaz','','872927278710','jepang','$2y$10$ddTyeB4p');
 
 /*Table structure for table `tb_pembelian` */
 
@@ -200,7 +201,7 @@ insert  into `tb_penjualan_detail`(`Id_obat`,`Id_penjualan`,`jumlah_item`,`harga
 DROP TABLE IF EXISTS `tb_pesanan`;
 
 CREATE TABLE `tb_pesanan` (
-  `Id_pesanan` int(4) NOT NULL,
+  `Id_pesanan` varchar(50) NOT NULL,
   `tanggal_pemesanan` date NOT NULL,
   `Total_item` int(8) NOT NULL,
   `Harga_total` int(8) NOT NULL,
@@ -213,22 +214,30 @@ CREATE TABLE `tb_pesanan` (
 
 /*Data for the table `tb_pesanan` */
 
+insert  into `tb_pesanan`(`Id_pesanan`,`tanggal_pemesanan`,`Total_item`,`Harga_total`,`Id_pelanggan`,`status`) values 
+('3-1733625609','2024-12-08',1,10000,3,'PENDING'),
+('3-1733625628','2024-12-08',1,799,3,'PENDING');
+
 /*Table structure for table `tb_pesanan_detail` */
 
 DROP TABLE IF EXISTS `tb_pesanan_detail`;
 
 CREATE TABLE `tb_pesanan_detail` (
-  `Id_pesanan` int(4) DEFAULT NULL,
-  `Id_obat` int(4) DEFAULT NULL,
-  `jumlah_item` int(11) DEFAULT NULL,
-  `harga_satuan` int(11) DEFAULT NULL,
-  KEY `Id_pesanan` (`Id_pesanan`),
+  `Id_pesanan` varchar(50) NOT NULL,
+  `Id_obat` int(4) NOT NULL,
+  `jumlah_item` int(11) NOT NULL,
+  `harga_satuan` int(11) NOT NULL,
   KEY `Id_obat` (`Id_obat`),
-  CONSTRAINT `tb_pesanan_detail_ibfk_1` FOREIGN KEY (`Id_pesanan`) REFERENCES `tb_pesanan` (`Id_pesanan`),
-  CONSTRAINT `tb_pesanan_detail_ibfk_2` FOREIGN KEY (`Id_obat`) REFERENCES `tb_obat` (`Id_Obat`)
+  KEY `Id_pesanan` (`Id_pesanan`),
+  CONSTRAINT `tb_pesanan_detail_ibfk_2` FOREIGN KEY (`Id_obat`) REFERENCES `tb_obat` (`Id_Obat`),
+  CONSTRAINT `tb_pesanan_detail_ibfk_3` FOREIGN KEY (`Id_pesanan`) REFERENCES `tb_pesanan` (`Id_pesanan`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pesanan_detail` */
+
+insert  into `tb_pesanan_detail`(`Id_pesanan`,`Id_obat`,`jumlah_item`,`harga_satuan`) values 
+('3-1733625609',1,1,10000),
+('3-1733625628',2,1,799);
 
 /*Table structure for table `tb_suplier` */
 
