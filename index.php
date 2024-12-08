@@ -162,6 +162,8 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
                                 <li><a href="index.php?page=suplier">Suplier</a></li>
                                 <li><a href="index.php?page=pegawai">Pegawai</a></li>
                                 <li><a href="index.php?page=pelanggan">Pelanggan</a></li>
+                                <li><a href="index.php?page=pelanggan">Barang akan kadaluarsa</a></li>
+                                <li><a href="index.php?page=pelanggan">Barang Kadaluarsa</a></li>
                             </ul>
                         </div>
                     </li>
