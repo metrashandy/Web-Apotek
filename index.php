@@ -173,7 +173,7 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
                             <ul class="ps-3">
                                 <li><a href="index.php?page=pembelian">Pembelian</a></li>
                                 <li><a href="index.php?page=penjualan">Penjualan</a></li>
-                                <li><a href="index.php?page=">Obat</a></li>
+                                <li><a href="index.php?page=pesanan">Obat</a></li>
                             </ul>
                         </div>
                     </li>

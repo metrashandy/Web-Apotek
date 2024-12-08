@@ -4,6 +4,82 @@ $conn = new mysqli("localhost", "root", "", "apotek");
 if ($conn->connect_error) {
     die("Koneksi gagal: " . $conn->connect_error);
 }
+// Ambil data dari form
+$action = $_POST['action'] ?? null;
+$Id_pesanan = $_POST['Id_pesanan'] ?? null;
+
+// Logika tambahan untuk memproses pesanan ke penjualan
+if ($action === 'process' && $Id_pesanan) {
+    $conn->begin_transaction();
+    try {
+        // Ambil data pesanan
+        $queryPesanan = "SELECT * FROM tb_pesanan WHERE Id_pesanan = ?";
+        $stmt = $conn->prepare($queryPesanan);
+        $stmt->bind_param("s", $Id_pesanan);
+        $stmt->execute();
+        $pesanan = $stmt->get_result()->fetch_assoc();
+
+        if (!$pesanan) {
+            throw new Exception("Pesanan tidak ditemukan.");
+        }
+
+        // Tambahkan ke tabel tb_penjualan
+        $queryPenjualan = "INSERT INTO tb_penjualan (Tanggal_penjualan, Id_pelanggan, Total_item, harga_total) 
+                           VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($queryPenjualan);
+        $stmt->bind_param(
+            "siii",
+            $pesanan['tanggal_pemesanan'],
+            $pesanan['Id_pelanggan'],
+            $pesanan['Total_item'],
+            $pesanan['Harga_total']
+        );
+        $stmt->execute();
+        $Id_penjualan = $stmt->insert_id;
+
+        // Ambil detail pesanan
+        $queryDetail = "SELECT * FROM tb_pesanan_detail WHERE Id_pesanan = ?";
+        $stmt = $conn->prepare($queryDetail);
+        $stmt->bind_param("s", $Id_pesanan);
+        $stmt->execute();
+        $resultDetail = $stmt->get_result();
+
+        // Tambahkan detail penjualan
+        $queryInsertDetail = "INSERT INTO tb_penjualan_detail (Id_penjualan, Id_obat, jumlah_item, harga_satuan) 
+                              VALUES (?, ?, ?, ?)";
+        $stmtInsertDetail = $conn->prepare($queryInsertDetail);
+
+        while ($detail = $resultDetail->fetch_assoc()) {
+            $stmtInsertDetail->bind_param(
+                "iiii",
+                $Id_penjualan,
+                $detail['Id_obat'],
+                $detail['jumlah_item'],
+                $detail['harga_satuan']
+            );
+            $stmtInsertDetail->execute();
+
+            // Kurangi stok obat
+            $queryUpdateStok = "UPDATE tb_obat SET Stok_obat = Stok_obat - ? WHERE Id_Obat = ?";
+            $stmtUpdateStok = $conn->prepare($queryUpdateStok);
+            $stmtUpdateStok->bind_param("ii", $detail['jumlah_item'], $detail['Id_obat']);
+            $stmtUpdateStok->execute();
+        }
+
+        // Update status pesanan menjadi SELESAI
+        $queryUpdatePesanan = "UPDATE tb_pesanan SET status = 'SELESAI' WHERE Id_pesanan = ?";
+        $stmt = $conn->prepare($queryUpdatePesanan);
+        $stmt->bind_param("s", $Id_pesanan);
+        $stmt->execute();
+
+        $conn->commit();
+        header('Location: index.php?page=pesanan'); // Redirect kembali ke halaman pesanan
+        exit();
+    } catch (Exception $e) {
+        $conn->rollback();
+        die("Gagal memproses pesanan: " . $e->getMessage());
+    }
+}
 
 // Ambil data dari form
 $action = $_POST['action'] ?? null;
