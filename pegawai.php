@@ -35,7 +35,7 @@ $result = $mysqli->query("SELECT * from tb_pegawai");
         echo "</td>";
 
         echo "<td>";
-        echo "<a class='btn btn-primary me-md-2 btn-sm' href='index.php?page=pegawai.form&NIP=" . $row['Id_pegawai'] . "&action=edit'>Perbarui</a>";
+        echo "<a class='btn btn-primary me-md-2 btn-sm' href='index.php?page=pegawai.form&Id_pegawai=" . $row['Id_pegawai'] . "&action=edit'>Perbarui</a>";
 
         // echo "<a class='btn btn-danger me-md-2 btn-sm' href='Pegawai.action.php?NIP=".$row['NIP']."&action=delete'>Delete</a>";
         echo "<form action='pegawai.action.php' method='POST' style ='display:inline;'>";

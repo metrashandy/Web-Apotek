@@ -11,15 +11,11 @@ $dbname = "apotek";
 $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashboard'
 
 // Daftar halaman yang valid
-$valid_pages = ['dashboard', 'obat', 'suplier', 'pembelian', 'penjualan', 'pegawai','pelanggan'];
 
-// Jika halaman tidak valid, tampilkan dashboard
-if (!in_array($page, $valid_pages)) {
-    $page = 'dashboard';
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,100 +31,102 @@ if (!in_array($page, $valid_pages)) {
             color: #0B90B1;
         }
 
-.sidebar {
-    background-color: #A1D6E2;
-    color: white;
-    min-height: 100vh;
-    padding: 20px;
-}
+        .sidebar {
+            background-color: #A1D6E2;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
 
-.sidebar ul li {
-    margin-bottom: 15px;
-}
+        .sidebar ul li {
+            margin-bottom: 15px;
+        }
 
-.sidebar ul li a,
-.sidebar ul li button {
-    font-family: 'Open Sans', sans-serif;
-    font-weight: bold;
-    font-size: 15px;
-    color: #0B90B1;
-    text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
+        .sidebar ul li a,
+        .sidebar ul li button {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: bold;
+            font-size: 15px;
+            color: #0B90B1;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
 
-.sidebar ul li a:hover,
-.sidebar ul li button:hover {
-    color: #0B90B1;
-}
+        .sidebar ul li a:hover,
+        .sidebar ul li button:hover {
+            color: #0B90B1;
+        }
 
-.content {
-    padding: 20px;
-}
+        .content {
+            padding: 20px;
+        }
 
-.navbar .search-bar {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    position: relative;
-}
+        .navbar .search-bar {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
 
-.search-container {
-    width: 40%;
-    position: relative;
-}
+        .search-container {
+            width: 40%;
+            position: relative;
+        }
 
-.search-input {
-    width: 100%;
-    height: 40px;
-    padding: 0 15px 0 40px;
-    font-size: 0.9em;
-    border-radius: 25px;
-    outline: none;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border: none;
-}
+        .search-input {
+            width: 100%;
+            height: 40px;
+            padding: 0 15px 0 40px;
+            font-size: 0.9em;
+            border-radius: 25px;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
 
-.search-bar-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 15px;
-    /* background-color: #007BFF; */ /* Menghapus warna latar belakang biru */
-    border-radius: 25px 25px 0 0; /* Sudut melengkung di bagian atas */
-}
+        .search-bar-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            /* background-color: #007BFF; */
+            /* Menghapus warna latar belakang biru */
+            border-radius: 25px 25px 0 0;
+            /* Sudut melengkung di bagian atas */
+        }
 
-.search-icon {
-    position: absolute;
-    top: 50%;
-    left: 10px;
-    transform: translateY(-50%);
-    font-size: 1.2em;
-    color: #4A90E2;
-    z-index: 3;
-}
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            color: #4A90E2;
+            z-index: 3;
+        }
 
-.search-input:focus {
-    border-color: #00A1D1;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
+        .search-input:focus {
+            border-color: #00A1D1;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
 
-.navbar-brand span {
-    font-size: 1.5em;
-}
-</style>
+        .navbar-brand span {
+            font-size: 1.5em;
+        }
+    </style>
 
 </head>
 
 <body class="sb-nav-fixed">
-<nav class="sb-topnav navbar navbar-expand navbar-dark bg-white"> 
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-white">
         <img src="image/logo.png" alt="Logo Pharmacy" width="40" height="40">
         <a class="navbar-brand" href="index.php">
             <span style="color: #2462E1; font-family: 'Open Sans', sans-serif;">Bailu</span>
@@ -158,6 +156,8 @@ if (!in_array($page, $valid_pages)) {
                         </button>
                         <div class="collapse" id="master-collapse">
                             <ul class="ps-3">
+                                <li><a href="index.php?page=barangAkanKadarluarsa">Obat</a></li>
+                                <li><a href="index.php?page=barangkadarluarsa">Obat</a></li>
                                 <li><a href="index.php?page=obat">Obat</a></li>
                                 <li><a href="index.php?page=suplier">Suplier</a></li>
                                 <li><a href="index.php?page=pegawai">Pegawai</a></li>
@@ -173,6 +173,7 @@ if (!in_array($page, $valid_pages)) {
                             <ul class="ps-3">
                                 <li><a href="index.php?page=pembelian">Pembelian</a></li>
                                 <li><a href="index.php?page=penjualan">Penjualan</a></li>
+                                <li><a href="index.php?page=">Obat</a></li>
                             </ul>
                         </div>
                     </li>
@@ -192,16 +193,16 @@ if (!in_array($page, $valid_pages)) {
                 </ul>
             </div>
 
-        <!-- Content -->
-        <div class="col content">
-            <!-- Konten dinamis yang ditentukan oleh halaman -->
-            <?php
-            $page_file = $page . '.php';
-            if (file_exists($page_file)) {
-                include $page_file;
-            } else {
-                echo "<h1>Halaman tidak ditemukan.</h1>";
-            }
+            <!-- Content -->
+            <div class="col content">
+                <!-- Konten dinamis yang ditentukan oleh halaman -->
+                <?php
+                $page_file = $page . '.php';
+                if (file_exists($page_file)) {
+                    include $page_file;
+                } else {
+                    echo "<h1>Halaman tidak ditemukan.</h1>";
+                }
                 ?>
             </div>
         </div>
@@ -219,9 +220,9 @@ if (!in_array($page, $valid_pages)) {
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
+
 </html>
 
 <?php
-// Menutup koneksi
-$conn->close();
-?>  
+
+?>
