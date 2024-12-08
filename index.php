@@ -156,8 +156,8 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
                         </button>
                         <div class="collapse" id="master-collapse">
                             <ul class="ps-3">
-                                <li><a href="index.php?page=barangAkanKadarluarsa">Obat</a></li>
-                                <li><a href="index.php?page=barangkadarluarsa">Obat</a></li>
+                                <li><a href="index.php?page=barangAkanKadarluarsa">Barang Akan Kadarluarsa</a></li>
+                                <li><a href="index.php?page=barangkadarluarsa">Barang Kadarluarsa</a></li>
                                 <li><a href="index.php?page=obat">Obat</a></li>
                                 <li><a href="index.php?page=suplier">Suplier</a></li>
                                 <li><a href="index.php?page=pegawai">Pegawai</a></li>
@@ -173,7 +173,7 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
                             <ul class="ps-3">
                                 <li><a href="index.php?page=pembelian">Pembelian</a></li>
                                 <li><a href="index.php?page=penjualan">Penjualan</a></li>
-                                <li><a href="index.php?page=pesanan">Obat</a></li>
+                                <li><a href="index.php?page=pesanan">Pesanan</a></li>
                             </ul>
                         </div>
                     </li>
