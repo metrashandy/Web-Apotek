@@ -74,6 +74,28 @@ $resultObat = $conn->query($queryObat);
             }
         }
 
+        function hitungKembalian() {
+            const totalHarga = parseInt(document.getElementById("harga_total").value) || 0;
+            const totalBayar = parseInt(document.getElementById("total_bayar").value) || 0;
+
+            let kembalian = totalBayar - totalHarga;
+            if (kembalian < 0) {
+                kembalian = 0; // Tidak ada kembalian negatif
+            }
+            document.getElementById("kembalian").value = kembalian;
+        }
+
+        function validasiForm() {
+            const totalHarga = parseInt(document.getElementById("harga_total").value) || 0;
+            const totalBayar = parseInt(document.getElementById("total_bayar").value) || 0;
+
+            if (totalBayar < totalHarga) {
+                alert("Total bayar tidak boleh kurang dari total harga.");
+                return false;
+            }
+            return true;
+        }
+
         // Fungsi untuk menghapus baris
         function hapusBaris(button) {
             const row = button.parentElement.parentElement;
@@ -134,7 +156,7 @@ $resultObat = $conn->query($queryObat);
 
 <body>
     <h1>Form Transaksi Penjualan</h1>
-    <form action="penjualan.action.php" method="POST">
+    <form action="penjualan.action.php" method="POST" onsubmit="return validasiForm()">
         <input type="hidden" name="action" value="<?php echo $Id_penjualan ? 'edit' : 'add'; ?>">
         <input type="hidden" name="Id_penjualan" value="<?php echo $dataPenjualan['Id_penjualan'] ?? ''; ?>">
 
@@ -181,7 +203,15 @@ $resultObat = $conn->query($queryObat);
         <label for="harga_total">Total Harga:</label>
         <input type="number" id="harga_total" name="harga_total" value="<?php echo $dataPenjualan['harga_total'] ?? 0; ?>" readonly><br><br>
 
-        <button type="button" onclick="simpanTransaksi(event)">Simpan Transaksi</button>
+        <label for="total_bayar">Total Bayar:</label>
+        <input type="number" id="total_bayar" name="Total_bayar"
+            value="<?php echo $dataPenjualan['Total_bayar'] ?? 0; ?>"
+            min="0" oninput="hitungKembalian()" required><br><br>
+
+        <label for="kembalian">Kembalian:</label>
+        <input type="number" id="kembalian" name="Kembalian" value="<?php echo $dataPenjualan['Kembalian'] ?? 0; ?>" readonly><br><br>
+
+        <button type="submit">Simpan Transaksi</button>
     </form>
 </body>
 

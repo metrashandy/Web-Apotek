@@ -54,16 +54,17 @@ CREATE TABLE `tb_obat` (
   PRIMARY KEY (`Id_Obat`),
   KEY `Id_jenis` (`Id_jenis`),
   CONSTRAINT `tb_obat_ibfk_1` FOREIGN KEY (`Id_jenis`) REFERENCES `tb_jenis_obat` (`Id_jenis`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_obat` */
 
 insert  into `tb_obat`(`Id_Obat`,`Nama_Obat`,`Stok_obat`,`Harga_satuan`,`Id_jenis`) values 
-(1,'gtw',76,10000,1),
-(2,'ya',36,799,2),
-(5,'',0,0,1),
-(6,'mugi',140,1256,8),
-(7,'bau',80,1256,4);
+(1,'gtw',-40,10000,1),
+(2,'ya',57,799,2),
+(6,'mugi',119,1256,8),
+(7,'bau',40,1256,4),
+(8,'paracetamol',8,10000,2),
+(9,'paramex',39,10000,4);
 
 /*Table structure for table `tb_pegawai` */
 
@@ -96,14 +97,15 @@ CREATE TABLE `tb_pelanggan` (
   `alamat` varchar(10) NOT NULL,
   `password` varchar(15) NOT NULL,
   PRIMARY KEY (`Id_pelanggan`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pelanggan` */
 
 insert  into `tb_pelanggan`(`Id_pelanggan`,`username`,`email`,`no_tlp`,`alamat`,`password`) values 
 (1,'anonim','-','-','-','user123'),
 (2,'Metra Shandy','','1234567','0','1qaz2wsx'),
-(3,'1qaz','','872927278710','jepang','$2y$10$ddTyeB4p');
+(3,'1qaz','','872927278710','jepang','$2y$10$ddTyeB4p'),
+(4,'kin','','098765432','jawa','$2y$10$qoiiP23V');
 
 /*Table structure for table `tb_pembelian` */
 
@@ -114,19 +116,18 @@ CREATE TABLE `tb_pembelian` (
   `tanggal_pembelian` date NOT NULL,
   `total_item` int(5) NOT NULL,
   `total_harga` int(10) NOT NULL,
-  `Id_suplier` int(3) DEFAULT NULL,
+  `Total_bayar` int(8) NOT NULL,
+  `kembalian` int(8) NOT NULL,
+  `Id_suplier` int(3) NOT NULL,
   PRIMARY KEY (`Id_pembelian`),
   KEY `Id_suplier` (`Id_suplier`),
   CONSTRAINT `tb_pembelian_ibfk_2` FOREIGN KEY (`Id_suplier`) REFERENCES `tb_suplier` (`Id_suplier`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pembelian` */
 
-insert  into `tb_pembelian`(`Id_pembelian`,`tanggal_pembelian`,`total_item`,`total_harga`,`Id_suplier`) values 
-(1,'2024-11-17',90,9000,2),
-(2,'2025-01-11',50,2250000,1),
-(3,'2024-12-07',40,400000,1),
-(4,'2024-12-07',40,400000,1);
+insert  into `tb_pembelian`(`Id_pembelian`,`tanggal_pembelian`,`total_item`,`total_harga`,`Total_bayar`,`kembalian`,`Id_suplier`) values 
+(1,'2024-11-17',90,9000,10000,1000,2);
 
 /*Table structure for table `tb_pembelian_detail` */
 
@@ -147,10 +148,7 @@ CREATE TABLE `tb_pembelian_detail` (
 /*Data for the table `tb_pembelian_detail` */
 
 insert  into `tb_pembelian_detail`(`Id_obat`,`Id_pembelian`,`tanggal_kadarluarsa`,`jumlah_item`,`harga_satuan`) values 
-(1,1,'2025-05-23',45,6000),
-(6,2,'2024-12-02',50,45000),
-(1,3,'2024-12-14',40,10000),
-(7,4,'2024-12-14',40,10000);
+(2,1,'2025-05-23',45,6000);
 
 /*Table structure for table `tb_penjualan` */
 
@@ -161,18 +159,19 @@ CREATE TABLE `tb_penjualan` (
   `Tanggal_penjualan` date NOT NULL,
   `Total_item` int(3) NOT NULL,
   `harga_total` int(8) NOT NULL,
+  `Total_bayar` int(8) NOT NULL,
+  `Kembalian` int(8) NOT NULL,
   `Id_pelanggan` int(3) NOT NULL,
   PRIMARY KEY (`Id_penjualan`),
   KEY `Id_pelanggan` (`Id_pelanggan`),
   CONSTRAINT `tb_penjualan_ibfk_1` FOREIGN KEY (`Id_pelanggan`) REFERENCES `tb_pelanggan` (`Id_pelanggan`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_penjualan` */
 
-insert  into `tb_penjualan`(`Id_penjualan`,`Tanggal_penjualan`,`Total_item`,`harga_total`,`Id_pelanggan`) values 
-(1,'2024-12-01',40,60000,1),
-(2,'2024-12-01',1,799,1),
-(3,'2024-12-07',9,90000,1);
+insert  into `tb_penjualan`(`Id_penjualan`,`Tanggal_penjualan`,`Total_item`,`harga_total`,`Total_bayar`,`Kembalian`,`Id_pelanggan`) values 
+(1,'2024-12-01',40,215980,100000000,99784020,1),
+(11,'2024-12-25',2,11256,20000,8744,1);
 
 /*Table structure for table `tb_penjualan_detail` */
 
@@ -192,9 +191,10 @@ CREATE TABLE `tb_penjualan_detail` (
 /*Data for the table `tb_penjualan_detail` */
 
 insert  into `tb_penjualan_detail`(`Id_obat`,`Id_penjualan`,`jumlah_item`,`harga_satuan`) values 
-(6,1,20,30000),
-(1,1,20,30000),
-(1,3,9,10000);
+(6,11,1,1256),
+(8,11,1,10000),
+(2,1,20,799),
+(1,1,20,10000);
 
 /*Table structure for table `tb_pesanan` */
 
@@ -215,8 +215,10 @@ CREATE TABLE `tb_pesanan` (
 /*Data for the table `tb_pesanan` */
 
 insert  into `tb_pesanan`(`Id_pesanan`,`tanggal_pemesanan`,`Total_item`,`Harga_total`,`Id_pelanggan`,`status`) values 
-('3-1733625609','2024-12-08',1,10000,3,'PENDING'),
-('3-1733625628','2024-12-08',1,799,3,'PENDING');
+('3-1733625609','2024-12-08',1,10000,3,'SELESAI'),
+('3-1733625628','2024-12-08',1,799,3,'SELESAI'),
+('4-1734935260','2024-12-23',8,70799,4,'SELESAI'),
+('4-1734937136','2024-12-23',10,100000,4,'SELESAI');
 
 /*Table structure for table `tb_pesanan_detail` */
 
@@ -237,7 +239,10 @@ CREATE TABLE `tb_pesanan_detail` (
 
 insert  into `tb_pesanan_detail`(`Id_pesanan`,`Id_obat`,`jumlah_item`,`harga_satuan`) values 
 ('3-1733625609',1,1,10000),
-('3-1733625628',2,1,799);
+('3-1733625628',2,1,799),
+('4-1734935260',1,7,10000),
+('4-1734935260',2,1,799),
+('4-1734937136',1,10,10000);
 
 /*Table structure for table `tb_suplier` */
 

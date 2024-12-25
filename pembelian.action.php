@@ -77,16 +77,43 @@ if ($action === 'add' || $action === 'edit') {
     }
 } elseif ($action === 'delete') {
     $Id_pembelian = $_POST['Id_pembelian'] ?? null;
-    $Id_obat = $_POST['Id_obat'] ?? null;
 
-    if ($Id_pembelian && $Id_obat) {
-        // Hapus detail pembelian
-        $query = "DELETE FROM tb_pembelian_detail WHERE Id_pembelian = ? AND Id_obat = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("ii", $Id_pembelian, $Id_obat);
+    if ($Id_pembelian) {
+        // Mulai transaksi
+        $conn->begin_transaction();
+        try {
+            // Kembalikan stok obat sebelum menghapus detail pembelian
+            $queryDetail = "SELECT Id_obat, jumlah_item FROM tb_pembelian_detail WHERE Id_pembelian = ?";
+            $stmt = $conn->prepare($queryDetail);
+            $stmt->bind_param("i", $Id_pembelian);
+            $stmt->execute();
+            $resultDetail = $stmt->get_result();
 
-        if (!$stmt->execute()) {
-            die("Gagal menghapus detail pembelian: " . $conn->error);
+            while ($detail = $resultDetail->fetch_assoc()) {
+                $queryUpdateStok = "UPDATE tb_obat SET Stok_obat = Stok_obat - ? WHERE Id_Obat = ?";
+                $stmtUpdate = $conn->prepare($queryUpdateStok);
+                $stmtUpdate->bind_param("ii", $detail['jumlah_item'], $detail['Id_obat']);
+                $stmtUpdate->execute();
+            }
+
+            // Hapus detail pembelian
+            $queryDeleteDetail = "DELETE FROM tb_pembelian_detail WHERE Id_pembelian = ?";
+            $stmt = $conn->prepare($queryDeleteDetail);
+            $stmt->bind_param("i", $Id_pembelian);
+            $stmt->execute();
+
+            // Hapus data pembelian
+            $queryDeletePembelian = "DELETE FROM tb_pembelian WHERE Id_pembelian = ?";
+            $stmt = $conn->prepare($queryDeletePembelian);
+            $stmt->bind_param("i", $Id_pembelian);
+            $stmt->execute();
+
+            // Commit transaksi
+            $conn->commit();
+        } catch (Exception $e) {
+            // Rollback jika terjadi kesalahan
+            $conn->rollback();
+            die("Gagal menghapus data pembelian: " . $e->getMessage());
         }
     }
 }
