@@ -3,15 +3,14 @@
 </div>
 <script>
     function tampilkanPembelian(data) {
-        // Isi data ke modal
         document.getElementById("pembelianId").innerText = data.ID_pembelian;
-        document.getElementById("pembelianSuplier").innerText = data.suplier;
+        document.getElementById("pembelianSuplier").innerText = data.suplier; // Nama suplier
         document.getElementById("pembelianTanggal").innerText = data.tanggal;
 
-        // Parse rincian item
+        // Rincian item
         const items = data.Rincian_Item ? data.Rincian_Item.split(", ") : [];
         const tbody = document.getElementById("pembelianItems");
-        tbody.innerHTML = ""; // Kosongkan tabel
+        tbody.innerHTML = "";
 
         let totalHarga = 0;
 
@@ -24,21 +23,19 @@
                 totalHarga += subtotal;
 
                 const row = `<tr>
-                    <td>${nama}</td>
-                    <td>${jumlah || 0}</td>
-                    <td>${harga || 0}</td>
-                    <td>${subtotal || 0}</td>
-                </tr>`;
+                <td>${nama}</td>
+                <td>${jumlah || 0}</td>
+                <td>${harga || 0}</td>
+                <td>${subtotal || 0}</td>
+            </tr>`;
                 tbody.innerHTML += row;
             });
         }
 
-        // Masukkan Total Harga, Total Bayar, dan Kembalian ke modal
         document.getElementById("pembelianTotalHarga").innerText = totalHarga;
         document.getElementById("pembelianTotalBayar").innerText = data.Total_bayar || 0;
         document.getElementById("pembelianKembalian").innerText = data.Kembalian || 0;
 
-        // Tampilkan modal
         const modal = new bootstrap.Modal(document.getElementById("modalPembelian"));
         modal.show();
     }
@@ -53,7 +50,7 @@ if ($mysqli->connect_error) {
 
 // Query data pembelian
 $result = $mysqli->query("
-    SELECT 
+     SELECT 
         p.Id_pembelian AS ID_pembelian,
         p.tanggal_pembelian AS tanggal,
         sp.Nama_suplier AS suplier,
@@ -111,13 +108,12 @@ if (!$result) {
         </div>
     </div>
 </div>
-
 <table class="table table-info table-striped">
     <thead>
         <tr>
             <th>ID PEMBELIAN</th>
             <th>TANGGAL PEMBELIAN</th>
-            <th>NAMA SUPLIER</th>
+            <th>NAMA SUPLIER</th> <!-- Label kolom diperbarui -->
             <th>DAFTAR ITEM</th>
             <th>JUMLAH ITEM</th>
             <th>HARGA TOTAL</th>
@@ -129,7 +125,7 @@ if (!$result) {
             <tr>
                 <td><?= htmlspecialchars($row['ID_pembelian']) ?></td>
                 <td><?= htmlspecialchars($row['tanggal']) ?></td>
-                <td><?= htmlspecialchars($row['suplier']) ?></td>
+                <td><?= htmlspecialchars($row['suplier']) ?></td> <!-- Output nama suplier -->
                 <td><?= htmlspecialchars($row['Daftar_Item']) ?></td>
                 <td><?= htmlspecialchars($row['Item']) ?></td>
                 <td><?= htmlspecialchars($row['Harga']) ?></td>

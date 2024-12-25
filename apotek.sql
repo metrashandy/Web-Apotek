@@ -60,10 +60,10 @@ CREATE TABLE `tb_obat` (
 
 insert  into `tb_obat`(`Id_Obat`,`Nama_Obat`,`Stok_obat`,`Harga_satuan`,`Id_jenis`) values 
 (1,'gtw',-40,10000,1),
-(2,'ya',57,799,2),
+(2,'ya',142,799,2),
 (6,'mugi',119,1256,8),
 (7,'bau',40,1256,4),
-(8,'paracetamol',8,10000,2),
+(8,'paracetamol',48,10000,2),
 (9,'paramex',39,10000,4);
 
 /*Table structure for table `tb_pegawai` */
@@ -122,12 +122,12 @@ CREATE TABLE `tb_pembelian` (
   PRIMARY KEY (`Id_pembelian`),
   KEY `Id_suplier` (`Id_suplier`),
   CONSTRAINT `tb_pembelian_ibfk_2` FOREIGN KEY (`Id_suplier`) REFERENCES `tb_suplier` (`Id_suplier`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `tb_pembelian` */
 
 insert  into `tb_pembelian`(`Id_pembelian`,`tanggal_pembelian`,`total_item`,`total_harga`,`Total_bayar`,`kembalian`,`Id_suplier`) values 
-(1,'2024-11-17',90,9000,10000,1000,2);
+(7,'2024-12-25',40,400000,500000,100000,1);
 
 /*Table structure for table `tb_pembelian_detail` */
 
@@ -148,7 +148,7 @@ CREATE TABLE `tb_pembelian_detail` (
 /*Data for the table `tb_pembelian_detail` */
 
 insert  into `tb_pembelian_detail`(`Id_obat`,`Id_pembelian`,`tanggal_kadarluarsa`,`jumlah_item`,`harga_satuan`) values 
-(2,1,'2025-05-23',45,6000);
+(8,7,'0000-00-00',40,10000);
 
 /*Table structure for table `tb_penjualan` */
 
