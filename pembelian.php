@@ -3,69 +3,78 @@
 </div>
 
 <?php
+// Koneksi ke database
 $mysqli = new mysqli("localhost", "root", "", "apotek");
-$result = $mysqli->query("SELECT tb_pembelian_detail.Id_pembelian, tb_pembelian.tanggal_pembelian,
-tb_pembelian_detail.jumlah_item,tb_pembelian_detail.harga_satuan, tb_suplier.Nama_suplier 
-AS Suplier,
-tb_obat.Nama_Obat AS nama_obat,tb_pembelian_detail.Id_obat 
-FROM tb_pembelian
-JOIN tb_suplier ON tb_suplier.Id_suplier = tb_pembelian.Id_suplier
-JOIN tb_pembelian_detail ON tb_pembelian_detail.Id_pembelian = tb_pembelian.Id_pembelian
-JOIN tb_obat ON tb_pembelian_detail.`Id_obat` = tb_obat.`Id_Obat`");
+if ($mysqli->connect_error) {
+    die("Koneksi gagal: " . $mysqli->connect_error);
+}
+
+// Query data pembelian
+$result = $mysqli->query("
+    SELECT 
+        p.Id_pembelian AS ID_pembelian,
+        p.tanggal_pembelian AS tanggal,
+        sp.Nama_suplier AS suplier,
+        GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS Daftar_Item,
+        p.total_item AS Item,
+        p.total_harga AS Harga,
+        pd.Id_obat AS Id_obat
+    FROM 
+        tb_pembelian p
+    JOIN 
+        tb_suplier sp ON p.Id_suplier = sp.Id_suplier
+    JOIN 
+        tb_pembelian_detail pd ON p.Id_pembelian = pd.Id_pembelian
+    JOIN 
+        tb_obat o ON pd.Id_obat = o.Id_Obat
+    GROUP BY 
+        p.Id_pembelian;
+");
+if (!$result) {
+    die("Query gagal: " . $mysqli->error);
+}
 ?>
+
 <table class="table table-info table-striped">
-    <tr>
-        <th>ID PEMBELIAN</th>
-        <th>TANGGAL PEMBELIAN</th>
-        <th>NAMA OBAT</th>
-        <th>JUMLAH ITEM</th>
-        <th>HARGA SATUAN</th>
-        <th>SUPLIER</th>
-        <th>ACTION</th>
-    </tr>
-    <?php
-    foreach ($result as $row) {
-        echo "<tr>";
-
-        echo "<td>";
-        echo $row['Id_pembelian'];
-        echo "</td>";
-
-        echo "<td>";
-        echo $row['tanggal_pembelian'];
-        echo "</td>";
-
-        echo "<td>";
-        echo $row['nama_obat'];
-        echo "</td>";
-
-        echo "<td>";
-        echo $row['jumlah_item'];
-        echo "</td>";
-
-        echo "<td>";
-        echo $row['harga_satuan'];
-        echo "</td>";
-
-        echo "<td>";
-        echo $row['Suplier'];
-        echo "</td>";
-
-        echo "<td>";
-        echo "<a class='btn btn-primary me-md-2 btn-sm' href='index.php?page=pembelian.form&Id_pembelian=" . $row['Id_pembelian'] . "&action=edit'>Perbarui</a>";
-
-        // echo "<a class='btn btn-danger me-md-2 btn-sm' href='Pegawai.action.php?NIP=".$row['NIP']."&action=delete'>Delete</a>";
-        echo "<form action='pembelian.action.php' method='POST' style ='display:inline;'>";
-        echo "<input type='hidden' name='Id_pembelian' value='" . $row['Id_pembelian'] . "'>";
-        echo "<input type='hidden' name='Id_obat' value='" . $row['Id_obat'] . "'>"; // Tambahkan Id_obat
-        echo "<input type='hidden' name='action' value='delete'>";
-        echo "<input type='hidden' name='action' value='delete'>";
-        echo "<button type='submit' class='btn btn-danger me-md-2 btn-sm' onclick='return confirm(\"Ingin menghapus data ini?\");'>Hapus</button>";
-        echo "</form>";
-        echo "</td>";
-
-        echo "</tr>";
-    }
-
-    ?>
+    <thead>
+        <tr>
+            <th>ID PEMBELIAN</th>
+            <th>TANGGAL PEMBELIAN</th>
+            <th>NAMA SUPLIER</th>
+            <th>DAFTAR ITEM</th>
+            <th>JUMLAH ITEM</th>
+            <th>HARGA TOTAL</th>
+            <th>ACTION</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($result as $row): ?>
+            <tr>
+                <td><?= htmlspecialchars($row['ID_pembelian']) ?></td>
+                <td><?= htmlspecialchars($row['tanggal']) ?></td>
+                <td><?= htmlspecialchars($row['suplier']) ?></td>
+                <td><?= htmlspecialchars($row['Daftar_Item']) ?></td>
+                <td><?= htmlspecialchars($row['Item']) ?></td>
+                <td><?= htmlspecialchars($row['Harga']) ?></td>
+                <td>
+                    <!-- Tombol Perbarui -->
+                    <a class="btn btn-primary me-md-2 btn-sm" 
+                       href="index.php?page=pembelian.form&Id_pembelian=<?= $row['ID_pembelian'] ?>&action=edit">
+                       Perbarui
+                    </a>
+                    
+                    <!-- Tombol Hapus -->
+                    <form action="pembelian.action.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="Id_pembelian" value="<?= $row['ID_pembelian'] ?>">
+                        <input type="hidden" name="Id_obat" value="<?= $row['Id_obat'] ?>">
+                        <input type="hidden" name="action" value="delete">
+                        <button type="submit" class="btn btn-danger me-md-2 btn-sm" 
+                                onclick="return confirm('Ingin menghapus data ini?');">
+                                Hapus
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
 </table>

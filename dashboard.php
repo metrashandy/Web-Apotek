@@ -83,7 +83,7 @@ $data_sudah_kadaluarsa = mysqli_query($koneksi, "
 ");
 $jumlah_sudah_kadaluarsa = mysqli_fetch_assoc($data_sudah_kadaluarsa)['jumlah_sudah_kadaluarsa'] ?? 0;
 
-$data_pesanan = mysqli_query($koneksi, "SELECT COUNT(Id_pesanan) AS jumlah_pesanan FROM tb_pesanan");
+$data_pesanan = mysqli_query($koneksi, "SELECT COUNT(Id_pesanan) AS jumlah_pesanan FROM tb_pesanan WHERE STATUS='PENDING'");
 
 // Data transaksi penjualan
 $data_penjualan = getTransactionData($koneksi, "tb_penjualan", $periode);
