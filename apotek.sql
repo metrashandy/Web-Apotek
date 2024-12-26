@@ -159,6 +159,8 @@ CREATE TABLE `tb_penjualan` (
   `Tanggal_penjualan` date NOT NULL,
   `Total_item` int(3) NOT NULL,
   `harga_total` int(8) NOT NULL,
+  `biaya_kirim` int(8) NOT NULL,
+  `total_biaya` int(8) NOT NULL,
   `Total_bayar` int(8) NOT NULL,
   `Kembalian` int(8) NOT NULL,
   `Id_pelanggan` int(3) NOT NULL,
@@ -169,9 +171,9 @@ CREATE TABLE `tb_penjualan` (
 
 /*Data for the table `tb_penjualan` */
 
-insert  into `tb_penjualan`(`Id_penjualan`,`Tanggal_penjualan`,`Total_item`,`harga_total`,`Total_bayar`,`Kembalian`,`Id_pelanggan`) values 
-(1,'2024-12-01',40,215980,100000000,99784020,1),
-(11,'2024-12-25',2,11256,20000,8744,1);
+insert  into `tb_penjualan`(`Id_penjualan`,`Tanggal_penjualan`,`Total_item`,`harga_total`,`biaya_kirim`,`total_biaya`,`Total_bayar`,`Kembalian`,`Id_pelanggan`) values 
+(1,'2024-12-01',40,215980,0,0,100000000,99784020,1),
+(11,'2024-12-25',2,11256,0,0,20000,8744,1);
 
 /*Table structure for table `tb_penjualan_detail` */
 

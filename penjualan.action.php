@@ -24,26 +24,28 @@ if ($action === 'process' && $Id_pesanan) {
             throw new Exception("Pesanan tidak ditemukan.");
         }
 
+        // Hitung total biaya (harga total + biaya kirim)
+        $biaya_pengiriman = 10000; // Tetapkan biaya pengiriman Rp 10.000
+        $total_biaya = $pesanan['Harga_total'] + $biaya_pengiriman;
+
+        // Pastikan total bayar sama dengan total biaya
+        $total_bayar = $total_biaya; // Tetapkan total bayar agar sama dengan total biaya
+        $kembalian = 0; // Kembalian selalu 0 karena total bayar disesuaikan
+
         // Tambahkan ke tabel tb_penjualan
-        $queryPenjualan = "INSERT INTO tb_penjualan (Tanggal_penjualan, Id_pelanggan, Total_item, harga_total, Total_bayar, Kembalian) 
-                           VALUES (?, ?, ?, ?, ?, ?)";
+        $queryPenjualan = "INSERT INTO tb_penjualan (Tanggal_penjualan, Id_pelanggan, Total_item, harga_total, biaya_kirim, total_biaya, Total_bayar, Kembalian) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($queryPenjualan);
-
-        $total_bayar = $_POST['Total_bayar'] ?? 0; // Ambil dari form
-        $kembalian = $total_bayar - $pesanan['Harga_total'];
-
-        if ($total_bayar < $pesanan['Harga_total']) {
-            throw new Exception("Total bayar tidak mencukupi.");
-        }
-
         $stmt->bind_param(
-            "siiiis",
+            "siiiiiii",
             $pesanan['tanggal_pemesanan'],
             $pesanan['Id_pelanggan'],
             $pesanan['Total_item'],
             $pesanan['Harga_total'],
+            $biaya_pengiriman,
+            $total_biaya,
             $total_bayar,
-            max(0, $kembalian) // Pastikan kembalian tidak negatif
+            $kembalian
         );
         $stmt->execute();
         $Id_penjualan = $stmt->insert_id;
@@ -100,19 +102,25 @@ $Id_pelanggan = $_POST['Id_pelanggan'] ?? null;
 $total_item = $_POST['Total_item'] ?? 0;
 $total_harga = $_POST['harga_total'] ?? 0;
 $total_bayar = $_POST['Total_bayar'] ?? 0;
-$kembalian = $_POST['Kembalian'] ?? 0;
 $Id_obat = $_POST['Id_obat'] ?? [];
 $jumlah_item = $_POST['jumlah_item'] ?? [];
 $harga_satuan = $_POST['harga_satuan'] ?? [];
+
+// Biaya kirim otomatis (0)
+$biaya_kirim = 0;
+
+// Hitung total biaya dan kembalian
+$total_biaya = $total_harga + $biaya_kirim;
+$kembalian = $total_bayar - $total_biaya;
 
 // Periksa mode berdasarkan action
 if ($action === 'add' || $action === 'edit') {
     if ($action === 'add') {
         // Tambah penjualan baru
-        $queryPenjualan = "INSERT INTO tb_penjualan (Tanggal_penjualan, Id_pelanggan, Total_item, harga_total, Total_bayar, Kembalian) 
-                           VALUES (?, ?, ?, ?, ?, ?)";
+        $queryPenjualan = "INSERT INTO tb_penjualan (Tanggal_penjualan, Id_pelanggan, Total_item, harga_total, biaya_kirim, total_biaya, Total_bayar, Kembalian) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($queryPenjualan);
-        $stmt->bind_param("ssiiii", $Tanggal_penjualan, $Id_pelanggan, $total_item, $total_harga, $total_bayar, max(0, $kembalian));
+        $stmt->bind_param("ssiiiiii", $Tanggal_penjualan, $Id_pelanggan, $total_item, $total_harga, $biaya_kirim, $total_biaya, $total_bayar, max(0, $kembalian));
 
         if ($stmt->execute()) {
             $Id_penjualan = $stmt->insert_id;
@@ -122,10 +130,10 @@ if ($action === 'add' || $action === 'edit') {
     } elseif ($action === 'edit') {
         // Perbarui penjualan
         $queryPenjualan = "UPDATE tb_penjualan 
-                           SET Tanggal_penjualan = ?, Id_pelanggan = ?, Total_item = ?, harga_total = ?, Total_bayar = ?, Kembalian = ? 
+                           SET Tanggal_penjualan = ?, Id_pelanggan = ?, Total_item = ?, harga_total = ?, biaya_kirim = ?, total_biaya = ?, Total_bayar = ?, Kembalian = ? 
                            WHERE Id_penjualan = ?";
         $stmt = $conn->prepare($queryPenjualan);
-        $stmt->bind_param("ssiiiii", $Tanggal_penjualan, $Id_pelanggan, $total_item, $total_harga, $total_bayar, max(0, $kembalian), $Id_penjualan);
+        $stmt->bind_param("ssiiiiiii", $Tanggal_penjualan, $Id_pelanggan, $total_item, $total_harga, $biaya_kirim, $total_biaya, $total_bayar, max(0, $kembalian), $Id_penjualan);
 
         if (!$stmt->execute()) {
             die("Gagal memperbarui data penjualan: " . $conn->error);
