@@ -76,7 +76,7 @@ if ($result) {
     document.getElementById('popup-overlay').style.display = 'none';
   }
 
-  function addToCart(idObat) {
+  function addToCart(idObat, stokObat) {
     fetch(`get_obat.php?id=${idObat}`)
       .then(response => response.json())
       .then(data => {
@@ -86,18 +86,29 @@ if ($result) {
         }
 
         const existingItem = cart.find(item => item.id === idObat);
+
+        // Check if adding one more item would exceed the stock
         if (existingItem) {
+          if (existingItem.jumlah + 1 > stokObat) {
+            alert(`Stok tidak mencukupi! Stok tersedia: ${stokObat}`);
+            return;
+          }
           existingItem.jumlah++;
         } else {
+          if (stokObat < 1) {
+            alert('Stok obat habis!');
+            return;
+          }
           cart.push({
             id: idObat,
             nama: data.Nama_Obat,
             harga: data.Harga_satuan,
             jumlah: 1,
+            stokTersedia: stokObat // Save available stock info
           });
         }
         renderCart();
-        updateCartCount(); // Update cart count after adding
+        updateCartCount();
         showPopup();
       })
       .catch(error => console.error('Error fetching data:', error));
@@ -110,11 +121,26 @@ if ($result) {
   }
 
   function updateQuantity(index, jumlah) {
-    if (jumlah > 0) {
-      cart[index].jumlah = parseInt(jumlah, 10);
+    const item = cart[index];
+    const newQuantity = parseInt(jumlah, 10);
+
+    // Check if the new quantity is valid
+    if (newQuantity <= 0) {
+      alert('Jumlah minimal pesanan adalah 1');
+      return;
     }
+
+    // Check if the new quantity exceeds available stock
+    if (newQuantity > item.stokTersedia) {
+      alert(`Stok tidak mencukupi! Stok tersedia: ${item.stokTersedia}`);
+      // Reset the input to previous valid value
+      document.querySelector(`#cart-table tbody tr:nth-child(${index + 1}) input`).value = item.jumlah;
+      return;
+    }
+
+    item.jumlah = newQuantity;
     renderCart();
-    updateCartCount(); // Update cart count after quantity change
+    updateCartCount();
   }
 
   function renderCart() {
@@ -126,14 +152,20 @@ if ($result) {
     cart.forEach((item, index) => {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${item.nama}</td>
-        <td>
-          <input type="number" value="${item.jumlah}" min="1" onchange="updateQuantity(${index}, this.value)">
-        </td>
-        <td>Rp ${item.harga}</td>
-        <td>Rp ${item.harga * item.jumlah}</td>
-        <td><button onclick="removeFromCart(${index})">Hapus</button></td>
-      `;
+            <td>${item.nama}</td>
+            <td>
+                <input type="number" 
+                       value="${item.jumlah}" 
+                       min="1" 
+                       max="${item.stokTersedia}"
+                       onchange="updateQuantity(${index}, this.value)">
+                <br>
+                <small class="text-gray-500">(Stok: ${item.stokTersedia})</small>
+            </td>
+            <td>Rp ${item.harga}</td>
+            <td>Rp ${item.harga * item.jumlah}</td>
+            <td><button onclick="removeFromCart(${index})">Hapus</button></td>
+        `;
       tbody.appendChild(row);
       totalHarga += item.harga * item.jumlah;
     });
@@ -320,8 +352,8 @@ if ($result) {
           foreach ($all_products as $prod) {
         ?>
             <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-              <!-- Gambar produk (ubah sesuai kolom gambar di DB atau gunakan default) -->
-              <img src="path/to/your/image/<?php echo isset($prod['gambar']) ? htmlspecialchars($prod['gambar']) : 'default.png'; ?>"
+              <!-- Gambar produk -->
+              <img src="image/products/<?php echo isset($prod['gambar']) ? htmlspecialchars($prod['gambar']) : 'default.png'; ?>"
                 alt="<?php echo htmlspecialchars($prod['nama_obat']); ?>"
                 class="w-full h-32 object-contain mb-4" />
               <!-- Nama Obat -->
@@ -332,11 +364,17 @@ if ($result) {
               <p class="text-cyan-600 font-semibold mb-2">
                 Rp <?php echo number_format($prod['harga_satuan'], 0, ',', '.'); ?>
               </p>
+              <!-- Jumlah Stok -->
+              <p class="text-sm text-gray-500 mb-4">
+                Stok Tersedia: <span class="text-gray-700"><?php echo $prod['stok_obat']; ?></span>
+              </p>
               <!-- Tombol Pesan Sekarang -->
               <button
-                class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
-                onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>)">
-                Pesan Sekarang
+                class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition
+    <?php echo $prod['stok_obat'] <= 0 ? 'opacity-50 cursor-not-allowed' : ''; ?>"
+                onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>, <?php echo (int)$prod['stok_obat']; ?>)"
+                <?php echo $prod['stok_obat'] <= 0 ? 'disabled' : ''; ?>>
+                <?php echo $prod['stok_obat'] <= 0 ? 'Stok Habis' : 'Pesan Sekarang'; ?>
               </button>
             </div>
         <?php
