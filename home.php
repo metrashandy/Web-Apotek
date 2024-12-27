@@ -30,28 +30,7 @@ if ($result) {
   <title>Home - Bailu Pharmacy</title>
   <link href="src/output.css" rel="stylesheet">
 </head>
-<style>
-  #popup table,
-  #popup th,
-  #popup td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: center;
-  }
 
-  #popup button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background: #28a745;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-  }
-
-  #popup button:hover {
-    background: #218838;
-  }
-</style>
 <script>
   let cart = []; // Array untuk menyimpan pesanan sementara
 
@@ -87,7 +66,6 @@ if ($result) {
 
         const existingItem = cart.find(item => item.id === idObat);
 
-        // Check if adding one more item would exceed the stock
         if (existingItem) {
           if (existingItem.jumlah + 1 > stokObat) {
             alert(`Stok tidak mencukupi! Stok tersedia: ${stokObat}`);
@@ -104,7 +82,8 @@ if ($result) {
             nama: data.Nama_Obat,
             harga: data.Harga_satuan,
             jumlah: 1,
-            stokTersedia: stokObat // Save available stock info
+            stokTersedia: stokObat,
+            gambar: data.gambar || 'default.png'
           });
         }
         renderCart();
@@ -144,33 +123,77 @@ if ($result) {
   }
 
   function renderCart() {
-    const tbody = document.querySelector('#cart-table tbody');
+    const tbody = document.getElementById('cart-items');
     const totalHargaEl = document.getElementById('total-harga');
     tbody.innerHTML = '';
     let totalHarga = 0;
 
+    if (cart.length === 0) {
+      tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-10 text-center">
+                    <p class="text-gray-500 text-lg">Keranjang belanja kosong</p>
+                    <p class="text-gray-400 text-sm mt-1">Silakan tambahkan produk ke keranjang</p>
+                </td>
+            </tr>
+        `;
+      totalHargaEl.textContent = '0';
+      return;
+    }
+
     cart.forEach((item, index) => {
       const row = document.createElement('tr');
       row.innerHTML = `
-            <td>${item.nama}</td>
-            <td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <img src="image/products/${item.gambar || 'default.png'}" 
+                     alt="${item.nama}" 
+                     class="h-16 w-16 object-cover rounded-lg">
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${item.nama}</div>
+                <div class="text-sm text-gray-500">Stok: ${item.stokTersedia}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
                 <input type="number" 
+                       class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
                        value="${item.jumlah}" 
                        min="1" 
                        max="${item.stokTersedia}"
                        onchange="updateQuantity(${index}, this.value)">
-                <br>
-                <small class="text-gray-500">(Stok: ${item.stokTersedia})</small>
             </td>
-            <td>Rp ${item.harga}</td>
-            <td>Rp ${item.harga * item.jumlah}</td>
-            <td><button onclick="removeFromCart(${index})">Hapus</button></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                Rp ${numberFormat(item.harga)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                Rp ${numberFormat(item.harga * item.jumlah)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="removeFromCart(${index})" 
+                        class="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md transition-colors">
+                    Hapus
+                </button>
+            </td>
         `;
       tbody.appendChild(row);
       totalHarga += item.harga * item.jumlah;
     });
 
-    totalHargaEl.textContent = totalHarga;
+    totalHargaEl.textContent = numberFormat(totalHarga);
+  }
+
+  function numberFormat(number) {
+    return new Intl.NumberFormat('id-ID').format(number);
+  }
+
+  function showPopup() {
+    document.getElementById('popup').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    renderCart();
+  }
+
+  function hidePopup() {
+    document.getElementById('popup').classList.add('hidden');
+    document.body.style.overflow = 'auto';
   }
 
   function submitOrder() {
@@ -259,31 +282,79 @@ if ($result) {
     </nav>
   </header>
 
-  <!-- Pop-Up -->
-  <div id="popup" style="display: none; position: fixed; top: 10%; left: 10%; width: 80%; background: #fff; border: 1px solid #ccc; padding: 20px; z-index: 1000;">
-    <h2>Detail Pesanan</h2>
-    <table id="cart-table" style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th>Nama Obat</th>
-          <th>Jumlah</th>
-          <th>Harga Satuan</th>
-          <th>Total</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <p><strong>Total Harga:</strong> Rp <span id="total-harga">0</span></p>
-    <button onclick="hidePopup()">Tutup</button>
-    <button onclick="submitOrder()">Konfirmasi Pesanan</button>
-  </div>
+  <!-- Pop-up Cart dengan Tailwind -->
+  <div id="popup" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Background overlay -->
+    <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+      <div id="popup-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hidePopup()"></div>
 
-  <!-- Overlay untuk Background Gelap -->
-  <div id="popup-overlay"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; 
-              height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"
-    onclick="hidePopup()"></div>
+      <!-- Modal panel -->
+      <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+        <!-- Modal header -->
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <h3 class="text-2xl font-bold text-gray-900" id="modal-title">
+              Keranjang Belanja
+            </h3>
+            <button type="button" onclick="hidePopup()" class="text-gray-400 hover:text-gray-500">
+              <span class="sr-only">Close</span>
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Cart content -->
+          <div class="mt-4">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Gambar
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Produk
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Jumlah
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Harga Satuan
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200" id="cart-items">
+                <!-- Cart items will be inserted here by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div class="flex justify-between items-center w-full">
+            <div class="text-lg font-semibold text-gray-900">
+              Total: Rp <span id="total-harga" class="text-cyan-600">0</span>
+            </div>
+            <div class="flex space-x-3">
+              <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
+                Lanjut Belanja
+              </button>
+              <button type="button" onclick="submitOrder()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
+                Konfirmasi Pesanan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <section class="bg-blue-50 py-20">
     <div class="w-10/12 mx-auto flex flex-col md:flex-row items-center">
