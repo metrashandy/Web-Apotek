@@ -11,7 +11,7 @@ if ($koneksi->connect_error) {
   die("Koneksi gagal: " . $koneksi->connect_error);
 }
 
-$query        = "SELECT id_obat, nama_obat, stok_obat, harga_satuan, id_jenis FROM tb_obat LIMIT 12";
+$query        = "SELECT id_obat, nama_obat, stok_obat, harga_satuan, foto_obat ,id_jenis FROM tb_obat LIMIT 12";
 $result       = $koneksi->query($query);
 $all_products = [];
 if ($result) {
@@ -414,49 +414,45 @@ if ($result) {
   </section>
 
   <!-- Produk Terlaris -->
-  <section class="py-10 bg-gray-50">
-    <div class="w-9/12 mx-auto">
-      <h2 class="text-3xl font-bold text-cyan-600 text-center mb-8">Produk Terlaris</h2>
-      <div class="grid grid-cols-4 gap-6">
-        <?php
-        if (!empty($all_products)) {
-          foreach ($all_products as $prod) {
-        ?>
-            <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-              <!-- Gambar produk -->
-              <img src="image/products/<?php echo isset($prod['gambar']) ? htmlspecialchars($prod['gambar']) : 'default.png'; ?>"
-                alt="<?php echo htmlspecialchars($prod['nama_obat']); ?>"
-                class="w-full h-32 object-contain mb-4" />
-              <!-- Nama Obat -->
-              <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                <?php echo htmlspecialchars($prod['nama_obat']); ?>
-              </h3>
-              <!-- Harga -->
-              <p class="text-cyan-600 font-semibold mb-2">
-                Rp <?php echo number_format($prod['harga_satuan'], 0, ',', '.'); ?>
-              </p>
-              <!-- Jumlah Stok -->
-              <p class="text-sm text-gray-500 mb-4">
-                Stok Tersedia: <span class="text-gray-700"><?php echo $prod['stok_obat']; ?></span>
-              </p>
-              <!-- Tombol Pesan Sekarang -->
-              <button
-                class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition
-    <?php echo $prod['stok_obat'] <= 0 ? 'opacity-50 cursor-not-allowed' : ''; ?>"
-                onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>, <?php echo (int)$prod['stok_obat']; ?>)"
-                <?php echo $prod['stok_obat'] <= 0 ? 'disabled' : ''; ?>>
-                <?php echo $prod['stok_obat'] <= 0 ? 'Stok Habis' : 'Pesan Sekarang'; ?>
-              </button>
-            </div>
-        <?php
-          }
-        } else {
-          echo '<p>Tidak ada produk di database.</p>';
-        }
-        ?>
+  <section class="bg-blue-50 py-20">
+    <div class="container mx-auto">
+      <h2 class="text-center text-4xl font-bold text-gray-800 mb-12">Produk Kami</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <?php foreach ($all_products as $product): ?>
+          <div class="bg-white rounded-lg shadow-md p-4 flex flex-col items-center">
+            <!-- Menampilkan gambar obat langsung dari database -->
+            <?php
+            // Jika foto_obat ada, tampilkan dalam bentuk gambar, jika tidak, tampilkan gambar default
+            if (!empty($product['foto_obat'])) {
+              $image_data = $product['foto_obat']; // Data gambar BLOB
+              $image_base64 = base64_encode($image_data); // Encode gambar ke format base64
+              $image_src = 'data:image/jpeg;base64,' . $image_base64; // Set format gambar
+            } else {
+              // Gambar default jika foto_obat kosong
+              $image_src = 'image/products/default.png';
+            }
+            ?>
+            <img
+              src="<?php echo $image_src; ?>"
+              alt="<?php echo htmlspecialchars($product['nama_obat']); ?>"
+              class="h-32 w-32 object-cover mb-4 rounded-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">
+              <?php echo htmlspecialchars($product['nama_obat']); ?>
+            </h3>
+            <p class="text-gray-500 mb-2">Stok: <?php echo htmlspecialchars($product['stok_obat']); ?></p>
+            <p class="text-gray-800 font-bold mb-4">Rp <?php echo number_format($product['harga_satuan'], 0, ',', '.'); ?></p>
+            <button
+              onclick="addToCart(<?php echo $product['id_obat']; ?>, <?php echo $product['stok_obat']; ?>)"
+              class="bg-cyan-600 text-white px-4 py-2 rounded-md hover:bg-cyan-700 transition">
+              Tambah ke Keranjang
+            </button>
+          </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
+
+
 
   <section class="py-10">
     <div class="w-9/12 mx-auto">

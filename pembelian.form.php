@@ -138,13 +138,9 @@ $resultJenis = $conn->query($queryJenis);
         }
 
         function simpanObatBaru(formId) {
-            // Ambil elemen form berdasarkan ID
             const form = document.getElementById(formId);
-
-            // Buat FormData dari form
             const formData = new FormData(form);
 
-            // Kirim data menggunakan fetch
             fetch('obat.action.php', {
                     method: 'POST',
                     body: formData
@@ -152,7 +148,7 @@ $resultJenis = $conn->query($queryJenis);
                 .then(response => response.text())
                 .then(data => {
                     alert('Obat berhasil ditambahkan!');
-                    tutupModal(); // Fungsi untuk menutup modal
+                    tutupModal();
                     location.reload(); // Memuat ulang halaman untuk menampilkan data terbaru
                 })
                 .catch(error => {
@@ -160,6 +156,8 @@ $resultJenis = $conn->query($queryJenis);
                     alert('Terjadi kesalahan saat menyimpan data.');
                 });
         }
+
+
 
         // Simpan transaksi
         function simpanTransaksi(event) {
@@ -217,7 +215,7 @@ $resultJenis = $conn->query($queryJenis);
     <div id="modalOverlay" onclick="tutupModal()"></div>
     <div id="modalTambahObat">
         <h2>Tambah Obat Baru</h2>
-        <form id="formTambahObat" onsubmit="event.preventDefault(); simpanObatBaru('formTambahObat');">
+        <form id="formTambahObat" onsubmit="event.preventDefault(); simpanObatBaru('formTambahObat');" enctype="multipart/form-data">
             <input type="hidden" name="action" value="add">
 
             <label for="namaObatBaru">Nama Obat:</label>
@@ -231,17 +229,20 @@ $resultJenis = $conn->query($queryJenis);
             <label for="Id_jenis">Jenis Obat:</label>
             <select name="Id_jenis" required>
                 <?php while ($row = $resultJenis->fetch_assoc()) { ?>
-                    <option value="<?php echo $row['Id_jenis']; ?>"
-                        <?php echo ($dataPembelian['Id_jenis'] ?? '') == $row['Id_jenis'] ? 'selected' : ''; ?>>
+                    <option value="<?php echo $row['Id_jenis']; ?>">
                         <?php echo $row['nama_jenis'] . " - " . $row['bentuk_obat']; ?>
                     </option>
                 <?php } ?>
             </select><br><br>
 
+            <label for="foto_obat">Gambar Obat (Max 1 MB):</label>
+            <input type="file" name="foto_obat" id="foto_obat" accept="image/*" required><br><br>
+
             <button type="button" onclick="tutupModal()">Batal</button>
             <button type="submit">Simpan Data</button>
         </form>
     </div>
+
 
 
     <h1>Form Transaksi Pembelian</h1>
