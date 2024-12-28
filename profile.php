@@ -126,7 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </script>
 </head>
 
-<body class="bg-gray-100">
+<script src="cart.js"></script>
+
+<body>
     <!-- Navbar -->
     <header class="sticky py-5">
         <nav class="w-9/12 flex flex-row mx-auto items-center">
@@ -155,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Updated Cart Button with Dynamic Count -->
                 <button onclick="showPopup()" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700 flex items-center">
                     <img src="image/icon-shop.png" alt="cart" class="h-5 w-5 mr-1" />
-                    <span id="cart-count">0</span>
+                    <span id="cart-count">0</span> <!-- Updated Span -->
                 </button>
             </div>
             <div class="basis-1/4 flex justify-end items-center">
@@ -178,9 +180,83 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </nav>
     </header>
 
+    <!-- Pop-up Cart dengan Tailwind -->
+    <div id="popup" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Background overlay -->
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+            <div id="popup-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hidePopup()"></div>
+
+            <!-- Modal panel -->
+            <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <!-- Modal header -->
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-900" id="modal-title">
+                            Keranjang Belanja
+                        </h3>
+                        <button type="button" onclick="hidePopup()" class="text-gray-400 hover:text-gray-500">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Cart content -->
+                    <div class="mt-4">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Gambar
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Produk
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Jumlah
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Harga Satuan
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Total
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Aksi
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="cart-items">
+                                <!-- Cart items will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <div class="flex justify-between items-center w-full">
+                        <div class="text-lg font-semibold text-gray-900">
+                            Total: Rp <span id="total-harga" class="text-cyan-600">0</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
+                                Lanjut Belanja
+                            </button>
+                            <button type="button" onclick="submitOrder()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                Konfirmasi Pesanan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="w-9/12 mx-auto py-8">
-        <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+        <div class="bg-slate-100 rounded-lg shadow-md p-6 max-w-2xl mx-auto">
             <h1 class="text-2xl font-bold text-gray-900 mb-6">Profil Saya</h1>
 
             <?php if (!empty($success_message)): ?>
@@ -200,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username</label>
                     <input type="text" value="<?php echo htmlspecialchars($user_data['username']); ?>"
-                        class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm focus:border-cyan-500 focus:ring-cyan-500"
+                        class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 cursor-not-allowed"
                         readonly>
                 </div>
 
@@ -289,7 +365,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
 
                 <!-- Submit Button -->
-                <div class="flex justify-end">
+                <div class="flex justify-between w-full">
+                    <a href="logout.php" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">LOGOUT</a>
                     <button type="submit"
                         class="inline-flex justify-center rounded-md border border-transparent bg-cyan-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2">
                         Simpan Perubahan
