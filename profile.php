@@ -371,6 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         class="inline-flex justify-center rounded-md border border-transparent bg-cyan-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2">
                         Simpan Perubahan
                     </button>
+                    <a href="history_belanja.php" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">History pesanan</a>
                 </div>
             </form>
         </div>

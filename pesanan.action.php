@@ -14,10 +14,26 @@ $id_pelanggan = $_SESSION['id_pelanggan'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_obat = $_POST['Id_Obat'] ?? [];
     $jumlah_item = $_POST['jumlah_item'] ?? [];
+    $tipe_pembayaran = $_POST['tipe_pembayaran'] ?? null;
+    $bukti_transfer = $_FILES['bukti_transfer'] ?? null;
 
-    // Validasi input
-    if (empty($id_obat) || empty($jumlah_item) || count($id_obat) !== count($jumlah_item)) {
-        die("Data obat atau jumlah item tidak valid.");
+    // Validasi tipe pembayaran
+    $allowed_payment_types = ['COD', 'Transfer Bank Mandiri', 'Transfer Bank BNI', 'Transfer Bank BCA', 'Transfer Bank BRI'];
+    if (!in_array($tipe_pembayaran, $allowed_payment_types)) {
+        die("Tipe pembayaran tidak valid.");
+    }
+
+    // Validasi file bukti transfer
+    if ($tipe_pembayaran !== 'COD' && $bukti_transfer && $bukti_transfer['error'] === UPLOAD_ERR_OK) {
+        $allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!in_array($bukti_transfer['type'], $allowed_types)) {
+            die("Format file bukti transfer tidak valid.");
+        }
+
+        // Baca data file sebagai biner
+        $file_content = file_get_contents($bukti_transfer['tmp_name']);
+    } else {
+        $file_content = null; // Jika tipe pembayaran COD atau tidak ada bukti transfer
     }
 
     $tanggal_pemesanan = date('Y-m-d');
@@ -25,22 +41,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Buat ID pesanan unik
-        $timestamp = time(); // Menggunakan timestamp sebagai bagian unik
+        $timestamp = time();
         $id_pesanan_unik = $id_pelanggan . '-' . $timestamp;
 
-        // Simpan ke tb_pesanan
-        $sqlPesanan = "INSERT INTO tb_pesanan (Id_pesanan, Id_pelanggan, tanggal_pemesanan, Total_item, Harga_total, status) 
-                       VALUES (?, ?, ?, ?, 0, 'PENDING')";
-        $stmtPesanan = $koneksi->prepare($sqlPesanan);
+        // Hitung total item
         $total_item = array_sum($jumlah_item);
-        $stmtPesanan->bind_param("sisi", $id_pesanan_unik, $id_pelanggan, $tanggal_pemesanan, $total_item);
-        $stmtPesanan->execute();
+
+        // Simpan ke tb_pesanan
+        $sqlPesanan = "INSERT INTO tb_pesanan (Id_pesanan, tanggal_pemesanan, Total_item, Harga_total, Id_pelanggan, `Tipe Pembayaran`, Bukti_transfer, status) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+        $stmtPesanan = $koneksi->prepare($sqlPesanan);
+        $stmtPesanan->bind_param("ssiiiss", $id_pesanan_unik, $tanggal_pemesanan, $total_item, $harga_total, $id_pelanggan, $tipe_pembayaran, $file_content);
+
+        $total_harga = 0;
 
         // Simpan ke tb_pesanan_detail
         $sqlDetail = "INSERT INTO tb_pesanan_detail (Id_pesanan, Id_obat, jumlah_item, harga_satuan) 
                       VALUES (?, ?, ?, ?)";
         $stmtDetail = $koneksi->prepare($sqlDetail);
-        $total_harga = 0;
 
         foreach ($id_obat as $index => $id) {
             $jumlah = $jumlah_item[$index];
@@ -72,6 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtUpdateStok->execute();
         }
 
+        // Simpan data pesanan utama
+        $stmtPesanan->execute();
+
         // Update total harga di tb_pesanan
         $stmtUpdatePesanan = $koneksi->prepare("UPDATE tb_pesanan SET Harga_total = ? WHERE Id_pesanan = ?");
         $stmtUpdatePesanan->bind_param("ds", $total_harga, $id_pesanan_unik);
@@ -85,4 +106,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Pesanan gagal: " . $e->getMessage());
     }
 }
-?>
