@@ -10,11 +10,13 @@ $dbname = "apotek";
 // Menentukan halaman yang diminta (routing)
 $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashboard'
 
-// Daftar halaman yang valid
-
+// Daftar halaman yang valid untuk setiap submenu
+$masterDataPages = ['barangAkanKadarluarsa', 'barangkadarluarsa', 'obat', 'suplier', 'pegawai', 'pelanggan'];
+$ordersPages = ['pembelian', 'penjualan', 'pesanan'];
+$accountPages = ['settings']; // Tambahkan halaman lain jika ada
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -31,98 +33,112 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
             color: #0B90B1;
         }
 
+        /* Sidebar */
         .sidebar {
-            background-color: #A1D6E2;
-            color: white;
+            background-color: #FFFFFF;
+            /* Mengganti warna latar belakang menjadi putih */
+            color: #333;
+            /* Mengubah warna teks menjadi lebih gelap untuk kontras */
             min-height: 100vh;
             padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            /* Menambahkan bayangan untuk efek kedalaman */
+            transition: width 0.3s;
+            /* Animasi transisi saat sidebar di-toggle */
         }
 
         .sidebar ul {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .sidebar ul li {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        .sidebar ul li a,
-        .sidebar ul li button {
+        /* Gaya untuk link di sidebar tanpa submenu */
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            /* Menghilangkan justify-content: space-between */
+            justify-content: flex-start;
+            gap: 10px;
+            /* Jarak antara ikon dan teks */
             font-family: 'Open Sans', sans-serif;
             font-weight: bold;
-            font-size: 15px;
-            color: #0B90B1;
+            font-size: 16px;
+            color: #333;
             text-decoration: none;
             background: none;
             border: none;
             cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
+        /* Gaya untuk button di sidebar dengan submenu */
+        .sidebar ul li button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* Memisahkan konten kiri (ikon & teks) dengan chevron di kanan */
+            gap: 10px;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Efek hover pada link dan button */
         .sidebar ul li a:hover,
         .sidebar ul li button:hover {
+            background-color: #F0F4FF;
             color: #0B90B1;
         }
 
-        .content {
-            padding: 20px;
+        /* Gaya submenu */
+        .sidebar .collapse ul {
+            padding-left: 25px;
+            /* Indentasi submenu */
         }
 
-        .navbar .search-bar {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            position: relative;
+        /* Ikon sidebar */
+        .sidebar .fas {
+            width: 20px;
+            /* Lebar konsisten untuk ikon */
+            text-align: center;
         }
 
-        .search-container {
-            width: 40%;
-            position: relative;
+        /* Ikon chevron dropdown */
+        .chevron {
+            transition: transform 0.3s ease;
+            /* Animasi rotasi */
         }
 
-        .search-input {
-            width: 100%;
-            height: 40px;
-            padding: 0 15px 0 40px;
-            font-size: 0.9em;
-            border-radius: 25px;
-            outline: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: none;
+        /* Rotasi chevron saat submenu terbuka */
+        .btn-toggle.active .chevron {
+            transform: rotate(180deg);
         }
 
-        .search-bar-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 15px;
-            /* background-color: #007BFF; */
-            /* Menghapus warna latar belakang biru */
-            border-radius: 25px 25px 0 0;
-            /* Sudut melengkung di bagian atas */
+        /* Aktif link */
+        .sidebar ul li a.active {
+            background-color: #0B90B1;
+            color: #fff;
         }
 
-        .search-icon {
-            position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            font-size: 1.2em;
-            color: #4A90E2;
-            z-index: 3;
-        }
-
-        .search-input:focus {
-            border-color: #00A1D1;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
-
-        .navbar-brand span {
-            font-size: 1.5em;
+        .sidebar ul li a.active .fas {
+            color: #fff;
         }
     </style>
-
 </head>
 
 <body class="sb-nav-fixed">
@@ -132,14 +148,15 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
             <span style="color: #2462E1; font-family: 'Open Sans', sans-serif;">Bailu</span>
             <span style="color: #2462E1; font-family: 'Open Sans', sans-serif;">Pharmacy</span>
         </a>
-        <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
+        <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#">
+            <i class="fas fa-bars"></i>
+        </button>
 
         <!-- Form Pencarian -->
         <form class="search-bar mx-auto" method="get" action="">
             <div class="search-container">
                 <div class="search-bar-bg"></div>
-                <i class="fas fa-search search-icon"></i>
-                <input class="search-input form-control" type="text" name="search" placeholder="Search for..." aria-label="Search" />
+                <input class="search-input form-control" type="text" name="search" placeholder="Pencarian..." aria-label="Search" />
             </div>
         </form>
     </nav>
@@ -147,48 +164,116 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-2 sidebar">
+            <div class="col-md-2 sidebar">
                 <ul>
-                    <li><a href="index.php?page=dashboard">Dashboard</a></li>
                     <li>
-                        <button class="btn-toggle" onclick="toggleMenu('master-collapse')">
-                            Master Data
-                        </button>
-                        <div class="collapse" id="master-collapse">
-                            <ul class="ps-3">
-                                <li><a href="index.php?page=barangAkanKadarluarsa">Barang Akan Kadarluarsa</a></li>
-                                <li><a href="index.php?page=barangkadarluarsa">Barang Kadarluarsa</a></li>
-                                <li><a href="index.php?page=obat">Obat</a></li>
-                                <li><a href="index.php?page=suplier">Suplier</a></li>
-                                <li><a href="index.php?page=pegawai">Pegawai</a></li>
-                                <li><a href="index.php?page=pelanggan">Pelanggan</a></li>
-                                <li><a href="index.php?page=pelanggan">Barang akan kadaluarsa</a></li>
-                                <li><a href="index.php?page=pelanggan">Barang Kadaluarsa</a></li>
-                            </ul>
-                        </div>
+                        <a href="index.php?page=dashboard" class="<?php echo ($page == 'dashboard') ? 'active' : ''; ?>">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span class="link-text">Dashboard</span>
+                        </a>
                     </li>
                     <li>
-                        <button class="btn-toggle" onclick="toggleMenu('orders-collapse')">
-                            Orders
-                        </button>
-                        <div class="collapse" id="orders-collapse">
-                            <ul class="ps-3">
-                                <li><a href="index.php?page=pembelian">Pembelian</a></li>
-                                <li><a href="index.php?page=penjualan">Penjualan</a></li>
-                                <li><a href="index.php?page=pesanan">Pesanan</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li>
-                        <button class="btn-toggle" onclick="toggleMenu('account-collapse')">
-                            <div class="user-info d-flex align-items-center">
-                                <span><?php echo $_SESSION['username']; ?></span>
+                        <button class="btn-toggle <?php echo in_array($page, $masterDataPages) ? 'active' : ''; ?>" onclick="toggleMenu('master-collapse')">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-database"></i>
+                                <span class="link-text">Master Data</span>
                             </div>
+                            <i class="fas fa-chevron-down chevron"></i> <!-- Ikon dropdown di kanan -->
                         </button>
-                        <div class="collapse" id="account-collapse">
+                        <div class="collapse <?php echo in_array($page, $masterDataPages) ? 'show' : ''; ?>" id="master-collapse">
                             <ul class="ps-3">
-                                <li><a href="#">Settings</a></li>
-                                <li><a href="logout.php">Sign out</a></li>
+                                <li>
+                                    <a href="index.php?page=barangAkanKadarluarsa" class="<?php echo ($page == 'barangAkanKadarluarsa') ? 'active' : ''; ?>">
+                                        <i class="fas fa-boxes"></i>
+                                        <span class="link-text">Barang Akan Kadaluarsa</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.php?page=barangkadarluarsa" class="<?php echo ($page == 'barangkadarluarsa') ? 'active' : ''; ?>">
+                                        <i class="fas fa-box-open"></i>
+                                        <span class="link-text">Barang Kadaluarsa</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.php?page=obat" class="<?php echo ($page == 'obat') ? 'active' : ''; ?>">
+                                        <i class="fas fa-pills"></i>
+                                        <span class="link-text">Obat</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.php?page=suplier" class="<?php echo ($page == 'suplier') ? 'active' : ''; ?>">
+                                        <i class="fas fa-truck-loading"></i>
+                                        <span class="link-text">Suplier</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.php?page=pegawai" class="<?php echo ($page == 'pegawai') ? 'active' : ''; ?>">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span class="link-text">Pegawai</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.php?page=pelanggan" class="<?php echo ($page == 'pelanggan') ? 'active' : ''; ?>">
+                                        <i class="fas fa-users"></i>
+                                        <span class="link-text">Pelanggan</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button class="btn-toggle <?php echo in_array($page, $ordersPages) ? 'active' : ''; ?>" onclick="toggleMenu('orders-collapse')">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="link-text">Orders</span>
+                            </div>
+                            <i class="fas fa-chevron-down chevron"></i> <!-- Ikon dropdown di kanan -->
+                        </button>
+                        <div class="collapse <?php echo in_array($page, $ordersPages) ? 'show' : ''; ?>" id="orders-collapse">
+                            <ul class="ps-3">
+                                <li>
+                                    <a href="index.php?page=pembelian" class="<?php echo ($page == 'pembelian') ? 'active' : ''; ?>">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <span class="link-text">Pembelian</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.php?page=penjualan" class="<?php echo ($page == 'penjualan') ? 'active' : ''; ?>">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        <span class="link-text">Penjualan</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.php?page=pesanan" class="<?php echo ($page == 'pesanan') ? 'active' : ''; ?>">
+                                        <i class="fas fa-concierge-bell"></i>
+                                        <span class="link-text">Pesanan</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button class="btn-toggle <?php echo in_array($page, $accountPages) ? 'active' : ''; ?>" onclick="toggleMenu('account-collapse')">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user"></i>
+                                <span class="link-text"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                            </div>
+                            <i class="fas fa-chevron-down chevron"></i> <!-- Ikon dropdown di kanan -->
+                        </button>
+                        <div class="collapse <?php echo in_array($page, $accountPages) ? 'show' : ''; ?>" id="account-collapse">
+                            <ul class="ps-3">
+                                <li>
+                                    <a href="#" class="<?php echo ($page == 'settings') ? 'active' : ''; ?>">
+                                        <i class="fas fa-cog"></i>
+                                        <span class="link-text">Settings</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="logout.php">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        <span class="link-text">Sign out</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
@@ -213,10 +298,24 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // default ke 'dashb
     <script>
         function toggleMenu(id) {
             const element = document.getElementById(id);
+            const toggleButton = element.previousElementSibling; // Mendapatkan tombol toggle sebelum collapse
+
             if (element.classList.contains('show')) {
                 element.classList.remove('show');
+                toggleButton.classList.remove('active');
             } else {
+                // Menutup semua submenu lainnya jika hanya ingin satu submenu terbuka
+                const allCollapses = document.querySelectorAll('.collapse.show');
+                allCollapses.forEach((collapse) => {
+                    collapse.classList.remove('show');
+                    const btn = collapse.previousElementSibling;
+                    if (btn && btn.classList.contains('btn-toggle')) {
+                        btn.classList.remove('active');
+                    }
+                });
+
                 element.classList.add('show');
+                toggleButton.classList.add('active');
             }
         }
     </script>
