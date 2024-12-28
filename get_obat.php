@@ -14,8 +14,8 @@ if ($id <= 0) {
     exit;
 }
 
-// Query ke database
-$query = $koneksi->prepare("SELECT Id_Obat, Nama_Obat, Harga_satuan FROM tb_obat WHERE Id_Obat = ?");
+// Query ke database, sertakan foto_obat dalam SELECT
+$query = $koneksi->prepare("SELECT Id_Obat, Nama_Obat, Harga_satuan, foto_obat FROM tb_obat WHERE Id_Obat = ?");
 $query->bind_param("i", $id);
 $query->execute();
 $result = $query->get_result();
@@ -23,6 +23,14 @@ $result = $query->get_result();
 // Cek hasil query
 if ($result->num_rows > 0) {
     $obat = $result->fetch_assoc();
+
+    // Jika ada data pada foto_obat, konversi ke Base64
+    if (!empty($obat['foto_obat'])) {
+        $obat['foto_obat'] = base64_encode($obat['foto_obat']);
+    } else {
+        $obat['foto_obat'] = "";
+    }
+
     echo json_encode($obat);
 } else {
     echo json_encode(null);
@@ -31,5 +39,3 @@ if ($result->num_rows > 0) {
 // Tutup koneksi
 $query->close();
 $koneksi->close();
-?>
-
