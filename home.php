@@ -32,71 +32,72 @@ if ($result) {
 </head>
 <style>
   /* Gaya untuk overlay pop-up */
-#payment-popup,
-#bank-popup {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5); /* Latar belakang semi-transparan */
-}
+  #payment-popup,
+  #bank-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    /* Latar belakang semi-transparan */
+  }
 
-/* Kontainer pop-up */
-#payment-popup > div,
-#bank-popup > div {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 400px; /* Lebar kontainer */
-}
+  /* Kontainer pop-up */
+  #payment-popup>div,
+  #bank-popup>div {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 400px;
+    /* Lebar kontainer */
+  }
 
-/* Judul dan tombol */
-#payment-popup h3,
-#bank-popup h3 {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 1rem;
-}
+  /* Judul dan tombol */
+  #payment-popup h3,
+  #bank-popup h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1rem;
+  }
 
-#payment-popup button,
-#bank-popup button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
+  #payment-popup button,
+  #bank-popup button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
 
-#payment-popup button:hover,
-#bank-popup button:hover {
-  opacity: 0.9;
-}
+  #payment-popup button:hover,
+  #bank-popup button:hover {
+    opacity: 0.9;
+  }
 
-#payment-popup .bg-green-500,
-#bank-popup .bg-green-500 {
-  background: #38a169;
-}
+  #payment-popup .bg-green-500,
+  #bank-popup .bg-green-500 {
+    background: #38a169;
+  }
 
-#payment-popup .bg-blue-500,
-#bank-popup .bg-blue-500 {
-  background: #3182ce;
-}
+  #payment-popup .bg-blue-500,
+  #bank-popup .bg-blue-500 {
+    background: #3182ce;
+  }
 
-#payment-popup .bg-gray-300,
-#bank-popup .bg-gray-300 {
-  background: #e2e8f0;
-  color: #4a5568;
-}
-
+  #payment-popup .bg-gray-300,
+  #bank-popup .bg-gray-300 {
+    background: #e2e8f0;
+    color: #4a5568;
+  }
 </style>
 <script src="cart.js"></script>
 
@@ -208,19 +209,35 @@ if ($result) {
 
         <!-- Modal footer -->
         <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <div class="flex justify-between items-center w-full">
+          <div class="flex flex-col space-y-4 w-full">
+            <!-- Total Harga -->
             <div class="text-lg font-semibold text-gray-900">
-              Total: Rp <span id="total-harga" class="text-cyan-600">0</span>
+              Total Harga: Rp <span id="total-harga" class="text-cyan-600">0</span>
             </div>
-            <div class="flex space-x-3">
-              <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
-                Lanjut Belanja
-              </button>
-              <button type="button" onclick="choosePaymentType()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
-                Konfirmasi Pesanan
-              </button>
+
+            <!-- Biaya Kirim -->
+            <div class="text-lg font-semibold text-gray-900">
+              Biaya Kirim: Rp <span id="biaya-kirim" class="text-cyan-600">0</span>
+            </div>
+
+            <!-- Total Biaya -->
+            <div class="text-lg font-semibold text-gray-900">
+              Total Biaya: Rp <span id="total-biaya" class="text-cyan-600">0</span>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="flex justify-between items-center w-full">
+              <div class="flex space-x-3">
+                <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
+                  Lanjut Belanja
+                </button>
+                <button type="button" onclick="choosePaymentType()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
+                  Konfirmasi Pesanan
+                </button>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

@@ -113,6 +113,9 @@ function updateQuantity(index, jumlah) {
 function renderCart() {
   const tbody = document.getElementById("cart-items");
   const totalHargaEl = document.getElementById("total-harga");
+  const biayaKirimEl = document.getElementById("biaya-kirim");
+  const totalBiayaEl = document.getElementById("total-biaya");
+
   tbody.innerHTML = "";
   let totalHarga = 0;
 
@@ -126,6 +129,8 @@ function renderCart() {
         </tr>
       `;
     totalHargaEl.textContent = "0";
+    biayaKirimEl.textContent = "Rp 0";
+    totalBiayaEl.textContent = "Rp 0";
     return;
   }
 
@@ -177,8 +182,14 @@ function renderCart() {
     totalHarga += item.harga * item.jumlah;
   });
 
-  totalHargaEl.textContent = numberFormat(totalHarga);
+  const biayaKirim = 10000; // Biaya kirim tetap
+  const totalBiaya = totalHarga + biayaKirim;
+
+  totalHargaEl.textContent = `Rp ${numberFormat(totalHarga)}`;
+  biayaKirimEl.textContent = `Rp ${numberFormat(biayaKirim)}`;
+  totalBiayaEl.textContent = `Rp ${numberFormat(totalBiaya)}`;
 }
+
 
 function numberFormat(number) {
   return new Intl.NumberFormat("id-ID").format(number);
@@ -250,7 +261,16 @@ function processBankTransfer() {
   const proofInput = document.getElementById("proof-of-transfer");
   const bankSelect = document.getElementById("bank-select");
   const proofFile = proofInput.files[0];
+  const fileSizeError = document.getElementById("file-size-error");
   const selectedBank = bankSelect.value;
+
+  // Validasi ukuran file (maksimum 1 MB)
+  if (proofFile && proofFile.size > 1 * 1024 * 1024) {
+    fileSizeError.classList.remove("hidden");
+    return;
+  } else {
+    fileSizeError.classList.add("hidden");
+  }
 
   if (!proofFile) {
     alert("Silakan upload bukti transfer.");
