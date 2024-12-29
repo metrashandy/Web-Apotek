@@ -29,6 +29,11 @@ if (!empty($_GET['urutkan'])) {
         $order = " ORDER BY nama_obat DESC";
     }
 }
+$search = "";
+if (!empty($_GET['search'])) {
+    $search = $koneksi->real_escape_string($_GET['search']);
+    $where .= " AND LOWER(tb_obat.nama_obat) LIKE LOWER('%$search%')";
+}
 
 $query = "SELECT tb_obat.id_obat, tb_obat.nama_obat, tb_obat.stok_obat, tb_obat.harga_satuan, tb_obat.foto_obat, tb_jenis_obat.nama_jenis, tb_jenis_obat.bentuk_obat 
           FROM tb_obat 
@@ -67,10 +72,17 @@ if ($result) {
                 </a>
             </div>
             <div class="basis-1/4 flex items-center justify-start mr-2">
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    class="px-4 py-2 border rounded-lg text-sm border-cyan-600 w-full focus:outline-none focus:ring focus:ring-cyan-300" />
+                <form method="GET" action="" class="w-full flex">
+                    <input
+                        type="text"
+                        name="search"
+                        value="<?php echo htmlspecialchars($search); ?>"
+                        placeholder="Search..."
+                        class="px-4 py-2 border rounded-lg text-sm border-cyan-600 w-full focus:outline-none focus:ring focus:ring-cyan-300" />
+                    <button type="submit" class="ml-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition">
+                        Cari
+                    </button>
+                </form>
             </div>
             <div class="basis-1/4 flex items-center justify-start">
                 <a href="home.php" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700">

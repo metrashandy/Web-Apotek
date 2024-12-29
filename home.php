@@ -112,10 +112,14 @@ if ($result) {
         </a>
       </div>
       <div class="basis-1/4 flex items-center justify-start mr-2">
-        <input
-          type="text"
-          placeholder="Search..."
-          class="px-4 py-2 border rounded-lg text-sm border-cyan-600 w-full focus:outline-none focus:ring focus:ring-cyan-300" />
+        <form action="shop.php" method="GET" class="w-full">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
+            class="px-4 py-2 border rounded-lg text-sm border-cyan-600 w-full focus:outline-none focus:ring focus:ring-cyan-300"
+            required />
+        </form>
       </div>
       <div class="basis-1/4 flex items-center justify-start">
         <a href="home.php" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700">
@@ -265,40 +269,45 @@ if ($result) {
   </section>
 
   <section class="py-10">
-    <div class="w-9/12 mx-auto">
-      <h2 class="text-3xl font-bold text-cyan-600 text-center mb-8">Kategori Produk</h2>
-      <div class="grid grid-cols-4 gap-6">
-        <!-- Obat -->
-        <div
-          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
-                 transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300">
-          <img src="image/icon-medicine.png" alt="Obat" class="w-20 h-20 mb-2" />
-          <p class="text-lg font-semibold text-gray-700">Obat</p>
-        </div>
-        <!-- Suplemen -->
-        <div
-          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition
-                 transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300">
-          <img src="image/icon-supplement.png" alt="Suplemen" class="w-20 h-20 mb-2" />
-          <p class="text-lg font-semibold text-gray-700">Suplemen</p>
-        </div>
-        <!-- Vitamin -->
-        <div
-          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
-                 transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300">
-          <img src="image/icon-vitamin.png" alt="Vitamin" class="w-20 h-20 mb-2" />
-          <p class="text-lg font-semibold text-gray-700">Vitamin</p>
-        </div>
-        <!-- Produk Bayi -->
-        <div
-          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
-                 transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300">
-          <img src="image/icon-baby-product.png" alt="Produk Bayi" class="w-20 h-20 mb-2" />
-          <p class="text-lg font-semibold text-gray-700">Produk Bayi</p>
-        </div>
+  <div class="w-9/12 mx-auto">
+    <h2 class="text-3xl font-bold text-cyan-600 text-center mb-8">Kategori Produk</h2>
+    <div class="grid grid-cols-4 gap-6">
+      <!-- Obat -->
+      <div
+        onclick="window.location.href='shop.php?kategori=obat'"
+        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
+               transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
+        <img src="image/icon-medicine.png" alt="Obat" class="w-20 h-20 mb-2" />
+        <p class="text-lg font-semibold text-gray-700">Obat</p>
+      </div>
+      <!-- Suplemen -->
+      <div
+        onclick="window.location.href='shop.php?kategori=suplemen'"
+        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition
+               transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
+        <img src="image/icon-supplement.png" alt="Suplemen" class="w-20 h-20 mb-2" />
+        <p class="text-lg font-semibold text-gray-700">Suplemen</p>
+      </div>
+      <!-- Vitamin -->
+      <div
+        onclick="window.location.href='shop.php?kategori=vitamin'"
+        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
+               transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
+        <img src="image/icon-vitamin.png" alt="Vitamin" class="w-20 h-20 mb-2" />
+        <p class="text-lg font-semibold text-gray-700">Vitamin</p>
+      </div>
+      <!-- Produk Bayi -->
+      <div
+        onclick="window.location.href='shop.php?kategori=Produk Bayi'"
+        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
+               transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
+        <img src="image/icon-baby-product.png" alt="Produk Bayi" class="w-20 h-20 mb-2" />
+        <p class="text-lg font-semibold text-gray-700">Produk Bayi</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
 
   <!-- Produk Terlaris -->
   <section class="py-10 bg-gray-50">
