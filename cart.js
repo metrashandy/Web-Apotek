@@ -26,7 +26,6 @@ window.addEventListener("storage", (event) => {
 function updateCartCount() {
   const cartCountElement = document.getElementById("cart-count");
   if (cartCountElement) {
-    // Calculate total quantity
     const totalQuantity = cart.reduce((total, item) => total + item.jumlah, 0);
     cartCountElement.textContent = totalQuantity;
   }
@@ -214,9 +213,19 @@ function showBankTransferOptions() {
     <div id="bank-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50">
       <div class="bg-white rounded-lg shadow-lg p-6 w-96">
         <h3 class="text-xl font-bold text-gray-900 mb-4">Transfer Bank</h3>
-        <p class="text-sm text-gray-700 mb-2">Nomor Rekening: 123456789 (Bank Mandiri)</p>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Bank</label>
+        <select id="bank-select" class="block w-full border-gray-300 rounded-md mb-4" onchange="updateBankDetails()">
+          <option value="Mandiri">Bank Mandiri</option>
+          <option value="BNI">Bank BNI</option>
+          <option value="BCA">Bank BCA</option>
+          <option value="BRI">Bank BRI</option>
+        </select>
+        <p id="bank-details" class="text-sm text-gray-500 mb-4">
+          Nomor Rekening: <strong>1234567890</strong> (Mandiri)
+        </p>
         <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti Transfer</label>
         <input type="file" id="proof-of-transfer" accept=".jpg,.jpeg,.png,.pdf" class="block w-full border-gray-300 rounded-md mb-4">
+        <div class="text-sm text-red-500 mb-2 hidden" id="file-size-error">Ukuran file tidak boleh lebih dari 1 MB.</div>
         <div class="flex justify-end space-x-3">
           <button onclick="closePopups()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
             Batal
@@ -230,6 +239,7 @@ function showBankTransferOptions() {
   `;
   closePopups();
   document.body.insertAdjacentHTML("beforeend", bankPopupHTML);
+  updateBankDetails(); // Set default bank details
 }
 
 function closePopups() {
@@ -238,17 +248,25 @@ function closePopups() {
 
 function processBankTransfer() {
   const proofInput = document.getElementById("proof-of-transfer");
+  const bankSelect = document.getElementById("bank-select");
   const proofFile = proofInput.files[0];
+  const selectedBank = bankSelect.value;
 
   if (!proofFile) {
     alert("Silakan upload bukti transfer.");
     return;
   }
 
+  if (!selectedBank) {
+    alert("Silakan pilih bank.");
+    return;
+  }
+
   const formData = new FormData();
   formData.append("proof_of_transfer", proofFile);
+  formData.append("selected_bank", selectedBank);
 
-  submitOrder("Transfer Bank Mandiri", formData);
+  submitOrder(`Transfer Bank ${selectedBank}`, formData);
   closePopups();
 }
 
@@ -292,4 +310,3 @@ function submitOrder(paymentType, additionalData) {
 function saveCart() {
   localStorage.setItem("cart", JSON.stringify(cart));
 }
-
