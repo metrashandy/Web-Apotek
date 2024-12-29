@@ -79,9 +79,6 @@ if ($result) {
                         value="<?php echo htmlspecialchars($search); ?>"
                         placeholder="Search..."
                         class="px-4 py-2 border rounded-lg text-sm border-cyan-600 w-full focus:outline-none focus:ring focus:ring-cyan-300" />
-                    <button type="submit" class="ml-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition">
-                        Cari
-                    </button>
                 </form>
             </div>
             <div class="basis-1/4 flex items-center justify-start">
@@ -128,6 +125,7 @@ if ($result) {
 
             <!-- Modal panel -->
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+
                 <!-- Modal header -->
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="flex justify-between items-center pb-3 border-b border-gray-200">
@@ -174,37 +172,37 @@ if ($result) {
                     </div>
                 </div>
 
-                <!-- Modal footer -->
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <div class="flex flex-col space-y-4 w-full">
-                        <!-- Total Harga -->
-                        <div class="text-lg font-semibold text-gray-900">
-                            Total Harga: Rp <span id="total-harga" class="text-cyan-600">0</span>
-                        </div>
-
+                <!-- Updated Modal footer -->
+                <div class="bg-gray-50 px-6 py-4 sm:px-6">
+                    <div class="flex flex-col space-y-4">
                         <!-- Biaya Kirim -->
-                        <div class="text-lg font-semibold text-gray-900">
-                            Biaya Kirim: Rp <span id="biaya-kirim" class="text-cyan-600">0</span>
+                        <div class="flex items-center">
+                            <span class="text-md font-medium text-gray-700 mr-2">Biaya Kirim:</span>
+                            <span class="text-md font-semibold text-cyan-600"><span id="biaya-kirim">0</span></span>
                         </div>
-
-                        <!-- Total Biaya -->
-                        <div class="text-lg font-semibold text-gray-900">
-                            Total Biaya: Rp <span id="total-biaya" class="text-cyan-600">0</span>
+                        <!-- Pricing Details -->
+                        <div class="flex items-center">
+                            <span class="text-md font-medium text-gray-700 mr-2">Total Harga:</span>
+                            <span class="text-md font-semibold text-cyan-600"><span id="total-harga">0</span></span>
                         </div>
-
-                        <!-- Tombol Aksi -->
-                        <div class="flex justify-between items-center w-full">
+                        <!-- Total Harga with Action Buttons -->
+                        <div class="flex items-center justify-between">
+                            <!-- Total Biaya -->
+                            <div class="flex items-center border-t border-gray-200 pt-2">
+                                <span class="text-xl font-bold text-gray-800 mr-2">Total Biaya:</span>
+                                <span class="text-xl font-bold text-cyan-600"><span id="total-biaya">0</span></span>
+                            </div>
+                            <!-- Action Buttons -->
                             <div class="flex space-x-3">
-                                <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
+                                <button type="button" onclick="hidePopup()" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100">
                                     Lanjut Belanja
                                 </button>
-                                <button type="button" onclick="choosePaymentType()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                <button type="button" onclick="choosePaymentType()" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">
                                     Konfirmasi Pesanan
                                 </button>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -212,10 +210,10 @@ if ($result) {
 
     <!-- Dropdown -->
     <main>
-        <div class="w-full md:w-9/12 mx-auto">
-            <div class="flex flex-wrap gap-4 mt-8 mb-4 justify-center">
+        <div class="w-9/12 mx-auto">
+            <div class="flex flex-wrap gap-6 mt-8 mb-4 justify-center">
                 <!-- Dropdown Kategori -->
-                <select id="kategori" class="border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
+                <select id="kategori" class="border px-6 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
                     <option value="">Semua Kategori</option>
                     <option value="Obat">Obat</option>
                     <option value="Suplemen">Suplemen</option>
@@ -224,7 +222,7 @@ if ($result) {
                 </select>
 
                 <!-- Dropdown Bentuk Obat -->
-                <select id="bentuk" class="border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
+                <select id="bentuk" class="border px-6 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
                     <option value="">Semua Bentuk</option>
                     <option value="Tablet">Tablet</option>
                     <option value="Sirup">Sirup</option>
@@ -234,17 +232,17 @@ if ($result) {
                 </select>
 
                 <!-- Dropdown Urutkan -->
-                <select id="urutkan" class="border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
+                <select id="urutkan" class="border px-6 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
                     <option value="A-Z">Judul (A-Z)</option>
                     <option value="Z-A">Judul (Z-A)</option>
                 </select>
 
-                <button onclick="applyFilters()" class="bg-cyan-600 text-white px-4 py-2 rounded shadow hover:bg-cyan-700 transition">
+                <button onclick="applyFilters()" class="bg-cyan-600 text-white px-6 py-2 rounded shadow hover:bg-cyan-700 transition">
                     Filter
                 </button>
             </div>
 
-            <section class="py-10 bg-gray-50">
+            <section class="py-10">
                 <div class="w-full md:w-9/12 mx-auto">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <?php

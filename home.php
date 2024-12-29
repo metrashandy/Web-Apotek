@@ -165,6 +165,7 @@ if ($result) {
 
       <!-- Modal panel -->
       <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+
         <!-- Modal header -->
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <div class="flex justify-between items-center pb-3 border-b border-gray-200">
@@ -211,37 +212,37 @@ if ($result) {
           </div>
         </div>
 
-        <!-- Modal footer -->
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <div class="flex flex-col space-y-4 w-full">
-            <!-- Total Harga -->
-            <div class="text-lg font-semibold text-gray-900">
-              Total Harga: Rp <span id="total-harga" class="text-cyan-600">0</span>
-            </div>
-
+        <!-- Updated Modal footer -->
+        <div class="bg-gray-50 px-6 py-4 sm:px-6">
+          <div class="flex flex-col space-y-4">
             <!-- Biaya Kirim -->
-            <div class="text-lg font-semibold text-gray-900">
-              Biaya Kirim: Rp <span id="biaya-kirim" class="text-cyan-600">0</span>
+            <div class="flex items-center">
+              <span class="text-md font-medium text-gray-700 mr-2">Biaya Kirim:</span>
+              <span class="text-md font-semibold text-cyan-600"><span id="biaya-kirim">0</span></span>
             </div>
-
-            <!-- Total Biaya -->
-            <div class="text-lg font-semibold text-gray-900">
-              Total Biaya: Rp <span id="total-biaya" class="text-cyan-600">0</span>
+            <!-- Pricing Details -->
+            <div class="flex items-center">
+              <span class="text-md font-medium text-gray-700 mr-2">Total Harga:</span>
+              <span class="text-md font-semibold text-cyan-600"><span id="total-harga">0</span></span>
             </div>
-
-            <!-- Tombol Aksi -->
-            <div class="flex justify-between items-center w-full">
+            <!-- Total Harga with Action Buttons -->
+            <div class="flex items-center justify-between">
+              <!-- Total Biaya -->
+              <div class="flex items-center border-t border-gray-200 pt-2">
+                <span class="text-xl font-bold text-gray-800 mr-2">Total Biaya:</span>
+                <span class="text-xl font-bold text-cyan-600"><span id="total-biaya">0</span></span>
+              </div>
+              <!-- Action Buttons -->
               <div class="flex space-x-3">
-                <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
+                <button type="button" onclick="hidePopup()" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100">
                   Lanjut Belanja
                 </button>
-                <button type="button" onclick="choosePaymentType()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
+                <button type="button" onclick="choosePaymentType()" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">
                   Konfirmasi Pesanan
                 </button>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -269,44 +270,44 @@ if ($result) {
   </section>
 
   <section class="py-10">
-  <div class="w-9/12 mx-auto">
-    <h2 class="text-3xl font-bold text-cyan-600 text-center mb-8">Kategori Produk</h2>
-    <div class="grid grid-cols-4 gap-6">
-      <!-- Obat -->
-      <div
-        onclick="window.location.href='shop.php?kategori=obat'"
-        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
+    <div class="w-9/12 mx-auto">
+      <h2 class="text-3xl font-bold text-cyan-600 text-center mb-8">Kategori Produk</h2>
+      <div class="grid grid-cols-4 gap-6">
+        <!-- Obat -->
+        <div
+          onclick="window.location.href='shop.php?kategori=obat'"
+          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
                transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
-        <img src="image/icon-medicine.png" alt="Obat" class="w-20 h-20 mb-2" />
-        <p class="text-lg font-semibold text-gray-700">Obat</p>
-      </div>
-      <!-- Suplemen -->
-      <div
-        onclick="window.location.href='shop.php?kategori=suplemen'"
-        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition
+          <img src="image/icon-medicine.png" alt="Obat" class="w-20 h-20 mb-2" />
+          <p class="text-lg font-semibold text-gray-700">Obat</p>
+        </div>
+        <!-- Suplemen -->
+        <div
+          onclick="window.location.href='shop.php?kategori=suplemen'"
+          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition
                transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
-        <img src="image/icon-supplement.png" alt="Suplemen" class="w-20 h-20 mb-2" />
-        <p class="text-lg font-semibold text-gray-700">Suplemen</p>
-      </div>
-      <!-- Vitamin -->
-      <div
-        onclick="window.location.href='shop.php?kategori=vitamin'"
-        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
+          <img src="image/icon-supplement.png" alt="Suplemen" class="w-20 h-20 mb-2" />
+          <p class="text-lg font-semibold text-gray-700">Suplemen</p>
+        </div>
+        <!-- Vitamin -->
+        <div
+          onclick="window.location.href='shop.php?kategori=vitamin'"
+          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
                transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
-        <img src="image/icon-vitamin.png" alt="Vitamin" class="w-20 h-20 mb-2" />
-        <p class="text-lg font-semibold text-gray-700">Vitamin</p>
-      </div>
-      <!-- Produk Bayi -->
-      <div
-        onclick="window.location.href='shop.php?kategori=Produk Bayi'"
-        class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
+          <img src="image/icon-vitamin.png" alt="Vitamin" class="w-20 h-20 mb-2" />
+          <p class="text-lg font-semibold text-gray-700">Vitamin</p>
+        </div>
+        <!-- Produk Bayi -->
+        <div
+          onclick="window.location.href='shop.php?kategori=Produk Bayi'"
+          class="flex flex-col items-center bg-white p-4 rounded-lg shadow-md transition 
                transform hover:scale-105 hover:shadow-lg hover:outline hover:outline-2 hover:outline-cyan-300 cursor-pointer">
-        <img src="image/icon-baby-product.png" alt="Produk Bayi" class="w-20 h-20 mb-2" />
-        <p class="text-lg font-semibold text-gray-700">Produk Bayi</p>
+          <img src="image/icon-baby-product.png" alt="Produk Bayi" class="w-20 h-20 mb-2" />
+          <p class="text-lg font-semibold text-gray-700">Produk Bayi</p>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
 
   <!-- Produk Terlaris -->

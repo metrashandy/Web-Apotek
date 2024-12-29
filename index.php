@@ -153,14 +153,6 @@ $accountPages = ['settings']; // Tambahkan halaman lain jika ada
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#">
             <i class="fas fa-bars"></i>
         </button>
-
-        <!-- Form Pencarian -->
-        <form class="search-bar mx-auto" method="get" action="">
-            <div class="search-container">
-                <div class="search-bar-bg"></div>
-                <input class="search-input form-control" type="text" name="search" placeholder="Pencarian..." aria-label="Search" />
-            </div>
-        </form>
     </nav>
 
     <div class="container-fluid">
