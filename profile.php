@@ -279,9 +279,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <form method="POST" class="space-y-6">
-                <!-- Grid layout for inputs -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Username and Email side by side -->
+                    <!-- Username dan Email -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Username</label>
                         <input type="text" value="<?php echo htmlspecialchars($user_data['username']); ?>"
@@ -296,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500" required>
                     </div>
 
-                    <!-- Phone and Address side by side -->
+                    <!-- No. Telpon dan Alamat -->
                     <div>
                         <label for="no_tlp" class="block text-sm font-medium text-gray-700">No. Telepon</label>
                         <input type="text" name="no_tlp" id="no_tlp"
@@ -311,11 +310,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
 
-                <!-- Password Section -->
+                <!-- Password -->
                 <div class="border-t pt-6 mt-6">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Ubah Password</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Current Password -->
+                        <!-- Password Saat Ini -->
                         <div>
                             <label for="current_password" class="block text-sm font-medium text-gray-700">Password Saat Ini</label>
                             <div class="relative">
@@ -334,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
 
-                        <!-- New Password -->
+                        <!-- Password Baru -->
                         <div>
                             <label for="new_password" class="block text-sm font-medium text-gray-700">Password Baru</label>
                             <div class="relative">

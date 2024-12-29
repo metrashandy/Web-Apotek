@@ -1,42 +1,3 @@
-<?php
-session_start();
-
-// Validasi login dan role user
-if (!isset($_SESSION['login']) || $_SESSION['role'] !== 'user') {
-    die("Anda harus login terlebih dahulu.");
-}
-
-// Ambil ID pelanggan dari sesi
-$id_pelanggan = $_SESSION['id_pelanggan'];
-
-$mysqli = new mysqli("localhost", "root", "", "apotek");
-if ($mysqli->connect_error) {
-    die("Koneksi gagal: " . $mysqli->connect_error);
-}
-
-// Query untuk riwayat pesanan pelanggan
-$result = $mysqli->query("
-    SELECT 
-        p.Id_pesanan AS ID_Pesanan,
-        p.tanggal_pemesanan AS Tanggal_Pemesanan,
-        GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS List_Barang,
-        p.Harga_total AS Total_Harga,
-        p.`Tipe Pembayaran` AS Tipe_Pembayaran,
-        p.status AS Status_Pesanan,
-        GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Detail_Obat
-    FROM 
-        tb_pesanan p
-    JOIN 
-        tb_pesanan_detail pd ON p.Id_pesanan = pd.Id_pesanan
-    JOIN 
-        tb_obat o ON pd.Id_obat = o.Id_Obat
-    WHERE 
-        p.Id_pelanggan = '$id_pelanggan'
-    GROUP BY 
-        p.Id_pesanan, p.tanggal_pemesanan, p.Harga_total, p.`Tipe Pembayaran`, p.status
-");
-
-?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -45,11 +6,50 @@ $result = $mysqli->query("
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Belanja - Bailu Pharmacy</title>
     <link href="src/output.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
-<script src="cart.js"></script>
-
 <body class="bg-gray-50">
+    <?php
+    session_start();
+
+    // Validasi login dan role user
+    if (!isset($_SESSION['login']) || $_SESSION['role'] !== 'user') {
+        die("Anda harus login terlebih dahulu.");
+    }
+
+    // Ambil ID pelanggan dari sesi
+    $id_pelanggan = $_SESSION['id_pelanggan'];
+
+    $mysqli = new mysqli("localhost", "root", "", "apotek");
+    if ($mysqli->connect_error) {
+        die("Koneksi gagal: " . $mysqli->connect_error);
+    }
+
+    // Query untuk riwayat pesanan pelanggan
+    $result = $mysqli->query("
+        SELECT 
+            p.Id_pesanan AS ID_Pesanan,
+            p.tanggal_pemesanan AS Tanggal_Pemesanan,
+            GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS List_Barang,
+            p.Harga_total AS Total_Harga,
+            p.`Tipe Pembayaran` AS Tipe_Pembayaran,
+            p.status AS Status_Pesanan,
+            GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Detail_Obat
+        FROM 
+            tb_pesanan p
+        JOIN 
+            tb_pesanan_detail pd ON p.Id_pesanan = pd.Id_pesanan
+        JOIN 
+            tb_obat o ON pd.Id_obat = o.Id_Obat
+        WHERE 
+            p.Id_pelanggan = '$id_pelanggan'
+        GROUP BY 
+            p.Id_pesanan, p.tanggal_pemesanan, p.Harga_total, p.`Tipe Pembayaran`, p.status
+    ");
+    ?>
+
     <!-- Navbar -->
     <header class="sticky py-5">
         <nav class="w-9/12 flex flex-row mx-auto items-center">
@@ -85,7 +85,7 @@ $result = $mysqli->query("
                 <?php
                 // Tampilkan ikon user dan nama jika sudah login
                 if (isset($_SESSION['login']) && $_SESSION['login'] === true && !empty($_SESSION['username'])) {
-                    echo '<span class="px-4 py-2 text-cyan-600 font-semibold rounded-lg mr-2">'
+                    echo '<span class="px-4 py-2 text-cyan-600 font-semibold rounded-lg mr=2">'
                         . htmlspecialchars($_SESSION['username']) . '</span>';
                     echo '<a href="profile.php" class="flex items-center">';
                     echo '  <img src="image/icon-user.png" alt="User" class="h-6 w-6" />';
@@ -148,7 +148,7 @@ $result = $mysqli->query("
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200" id="cart-items">
-                                <!-- Cart items -->
+                                <!-- Cart items akan diisi oleh cart.js -->
                             </tbody>
                         </table>
                     </div>
@@ -190,6 +190,7 @@ $result = $mysqli->query("
         </div>
     </div>
 
+    <!-- Main Content -->
     <main class="w-9/12 mx-auto py-8">
         <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
             <!-- Tab Navigation -->
@@ -231,6 +232,7 @@ $result = $mysqli->query("
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <?php
+                                    // Tentukan style status
                                     $statusClass = match ($row['Status_Pesanan']) {
                                         'Selesai' => 'bg-green-100 text-green-800',
                                         'Diproses' => 'bg-yellow-100 text-yellow-800',
@@ -246,7 +248,8 @@ $result = $mysqli->query("
                                     <?= htmlspecialchars($row['Tipe_Pembayaran']) ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <button onclick="tampilkanRincian(<?= htmlspecialchars(json_encode($row)) ?>)"
+                                    <button
+                                        onclick="tampilkanRincian(<?= htmlspecialchars(json_encode($row)) ?>)"
                                         class="text-cyan-600 hover:text-cyan-900 font-medium">
                                         Lihat Detail
                                     </button>
@@ -272,7 +275,8 @@ $result = $mysqli->query("
                 </button>
             </div>
 
-            <div class="mt-6">
+            <!-- Simpan Struk -->
+            <div class="mt-6" id="struk-container">
                 <!-- Info Pesanan -->
                 <div class="grid grid-cols-2 gap-8 mb-6">
                     <div class="space-y-1">
@@ -304,12 +308,14 @@ $result = $mysqli->query("
                                 </th>
                             </tr>
                         </thead>
-                        <tbody id="rincianItems" class="bg-white divide-y divide-gray-200"></tbody>
+                        <tbody id="rincianItems" class="bg-white divide-y divide-gray-200">
+                            <!-- Baris isi pesanan -->
+                        </tbody>
                     </table>
                 </div>
 
                 <!-- Ringkasan Biaya -->
-                <div class="mt-6  py-5 rounded-lg space-y-3">
+                <div class="mt-6 py-5 rounded-lg space-y-3">
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-600">Total Harga Barang</span>
                         <span class="font-medium text-gray-900">Rp. <span id="rincianTotalHarga"></span></span>
@@ -336,9 +342,20 @@ $result = $mysqli->query("
                     </div>
                 </div>
             </div>
+
+            <!-- Tombol Simpan Struk -->
+            <div class="flex justify-end mt-4">
+                <button
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                    onclick="simpanStruk()">
+                    Simpan Struk
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- Script Bagian Akhir -->
+    <script src="cart.js"></script>
     <script>
         function tampilkanRincian(data) {
             document.getElementById("rincianId").innerText = '#' + data.ID_Pesanan;
@@ -356,21 +373,21 @@ $result = $mysqli->query("
                 totalHarga += subtotal;
 
                 const row = `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 text-sm text-gray-900 whitespace-normal">
-                    ${nama}
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-900 text-center">
-                    ${jumlah}
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-900 text-right">
-                    Rp. ${parseInt(harga).toLocaleString('id-ID')}
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-900 text-right">
-                    Rp. ${subtotal.toLocaleString('id-ID')}
-                </td>
-            </tr>
-        `;
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900 whitespace-normal">
+                            ${nama}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 text-center">
+                            ${jumlah}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 text-right">
+                            Rp. ${parseInt(harga).toLocaleString('id-ID')}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 text-right">
+                            Rp. ${subtotal.toLocaleString('id-ID')}
+                        </td>
+                    </tr>
+                `;
                 tbody.innerHTML += row;
             });
 
@@ -379,7 +396,6 @@ $result = $mysqli->query("
             document.getElementById("rincianTotalBiaya").innerText = (totalHarga + biayaPengiriman).toLocaleString('id-ID');
             document.getElementById("rincianTipePembayaran").innerText = data.Tipe_Pembayaran;
 
-            // Set status dengan warna yang sesuai
             const statusElem = document.getElementById("rincianStatus");
             const statusText = data.Status_Pesanan;
             let statusClass = '';
@@ -408,12 +424,42 @@ $result = $mysqli->query("
             document.getElementById("modalRincian").classList.add("hidden");
         }
 
-        // Close modal when clicking outside
         document.getElementById("modalRincian").addEventListener("click", function(e) {
             if (e.target === this) {
                 tutupModal();
             }
         });
+
+        // Fungsi menyimpan bagian struk
+        async function simpanStruk() {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF("p", "pt", "a4");
+            const strukElement = document.getElementById('struk-container');
+
+            await html2canvas(strukElement).then((canvas) => {
+                const imageData = canvas.toDataURL('image/png');
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                const imgProps = doc.getImageProperties(imageData);
+                const pdfWidth = pageWidth;
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                // Simpan ke PDF
+                doc.addImage(
+                    imageData,
+                    'PNG',
+                    0,
+                    0,
+                    pdfWidth,
+                    pdfHeight
+                );
+            });
+
+            doc.save('struk-pesanan.pdf');
+        }
     </script>
 </body>
 
