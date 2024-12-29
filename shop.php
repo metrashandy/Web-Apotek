@@ -72,13 +72,13 @@ if ($result) {
                 </a>
             </div>
             <div class="basis-1/4 flex items-center justify-start mr-2">
-                <form method="GET" action="" class="w-full flex">
+                <form action="shop.php" method="GET" class="w-full">
                     <input
                         type="text"
                         name="search"
-                        value="<?php echo htmlspecialchars($search); ?>"
                         placeholder="Search..."
-                        class="px-4 py-2 border rounded-lg text-sm border-cyan-600 w-full focus:outline-none focus:ring focus:ring-cyan-300" />
+                        class="px-4 py-2 border rounded-lg text-sm border-cyan-600 w-full focus:outline-none focus:ring focus:ring-cyan-300"
+                        required />
                 </form>
             </div>
             <div class="basis-1/4 flex items-center justify-start">
@@ -88,23 +88,17 @@ if ($result) {
                 <a href="shop.php" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700">
                     <span>SHOP</span>
                 </a>
-                <a href="#" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700">
-                    <span>ABOUT</span>
-                </a>
-                <!-- Updated Cart Button with Dynamic Count -->
                 <button onclick="showPopup()" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700 flex items-center">
                     <img src="image/icon-shop.png" alt="cart" class="h-5 w-5 mr-1" />
-                    <span id="cart-count">0</span> <!-- Updated Span -->
+                    <span id="cart-count">0</span>
                 </button>
             </div>
             <div class="basis-1/4 flex justify-end items-center">
                 <?php
-                // Tampilkan ikon user dan nama jika sudah login, atau tombol login jika belum
+                // Tampilkan ikon user dan nama jika sudah login
                 if (isset($_SESSION['login']) && $_SESSION['login'] === true && !empty($_SESSION['username'])) {
-                    // Tampilkan nama user
                     echo '<span class="px-4 py-2 text-cyan-600 font-semibold rounded-lg mr-2">'
                         . htmlspecialchars($_SESSION['username']) . '</span>';
-                    // Tampilkan ikon user yang dapat diklik
                     echo '<a href="profile.php" class="flex items-center">';
                     echo '  <img src="image/icon-user.png" alt="User" class="h-6 w-6" />';
                     echo '</a>';
@@ -117,7 +111,7 @@ if ($result) {
         </nav>
     </header>
 
-    <!-- Pop-up Cart dengan Tailwind -->
+    <!-- Pop-up Cart -->
     <div id="popup" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Background overlay -->
         <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
@@ -166,13 +160,13 @@ if ($result) {
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200" id="cart-items">
-                                <!-- Cart items will be inserted here by JavaScript -->
+                                <!-- Cart items -->
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Updated Modal footer -->
+                <!-- Modal footer -->
                 <div class="bg-gray-50 px-6 py-4 sm:px-6">
                     <div class="flex flex-col space-y-4">
                         <!-- Biaya Kirim -->
@@ -242,6 +236,8 @@ if ($result) {
                 </button>
             </div>
         </div>
+
+        <!-- Menampilkan Produk -->
         <section class="py-10 bg-gray-50">
             <div class="w-full md:w-9/12 mx-auto">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -253,7 +249,7 @@ if ($result) {
                                 $image_base64 = base64_encode($image_data);
                                 $image_src = 'data:image/jpeg;base64,' . $image_base64;
                             } else {
-                                $image_src = 'image/products/default.png';
+                                $image_src = 'image/no-product.png';
                             }
 
                     ?>
@@ -294,6 +290,7 @@ if ($result) {
                 </div>
             </div>
         </section>
+
         <script>
             function toggleDropdown1() {
                 let dropdown1 = document.getElementById('dropdown1');

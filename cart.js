@@ -1,4 +1,4 @@
-let cart = []; // Array untuk menyimpan pesanan sementara
+let cart = []; // Array pesanan
 
 // Load cart from localStorage on page load
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Listen for changes in localStorage (optional)
+// Listen for changes in localStorage
 window.addEventListener("storage", (event) => {
   if (event.key === "cart") {
     const updatedCart = JSON.parse(event.newValue);
@@ -135,7 +135,7 @@ function renderCart() {
   }
 
   cart.forEach((item, index) => {
-    let imageSrc = "image/products/default.png";
+    let imageSrc = "image/no-product.png";
     if (item.foto_obat && item.foto_obat.trim() !== "") {
       imageSrc = `data:image/jpeg;base64,${item.foto_obat}`;
     }
@@ -182,7 +182,7 @@ function renderCart() {
     totalHarga += item.harga * item.jumlah;
   });
 
-  const biayaKirim = 10000; // Biaya kirim tetap
+  const biayaKirim = 10000;
   const totalBiaya = totalHarga + biayaKirim;
 
   totalHargaEl.textContent = `Rp ${numberFormat(totalHarga)}`;
@@ -250,7 +250,7 @@ function showBankTransferOptions() {
   `;
   closePopups();
   document.body.insertAdjacentHTML("beforeend", bankPopupHTML);
-  updateBankDetails(); // Set default bank details
+  updateBankDetails(); 
 }
 
 function closePopups() {

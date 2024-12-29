@@ -31,7 +31,7 @@ if ($result) {
   <link href="src/output.css" rel="stylesheet">
 </head>
 <style>
-  /* Gaya untuk overlay pop-up */
+
   #payment-popup,
   #bank-popup {
     position: fixed;
@@ -41,10 +41,9 @@ if ($result) {
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.5);
-    /* Latar belakang semi-transparan */
   }
 
-  /* Kontainer pop-up */
+
   #payment-popup>div,
   #bank-popup>div {
     background: white;
@@ -52,10 +51,9 @@ if ($result) {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
     width: 400px;
-    /* Lebar kontainer */
   }
 
-  /* Judul dan tombol */
+
   #payment-popup h3,
   #bank-popup h3 {
     font-size: 1.25rem;
@@ -128,23 +126,17 @@ if ($result) {
         <a href="shop.php" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700">
           <span>SHOP</span>
         </a>
-        <a href="#" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700">
-          <span>ABOUT</span>
-        </a>
-        <!-- Updated Cart Button with Dynamic Count -->
         <button onclick="showPopup()" class="mx-4 font-semibold text-cyan-600 hover:text-cyan-700 flex items-center">
           <img src="image/icon-shop.png" alt="cart" class="h-5 w-5 mr-1" />
-          <span id="cart-count">0</span> <!-- Updated Span -->
+          <span id="cart-count">0</span>
         </button>
       </div>
       <div class="basis-1/4 flex justify-end items-center">
         <?php
-        // Tampilkan ikon user dan nama jika sudah login, atau tombol login jika belum
+        // Tampilkan ikon user dan nama jika sudah login
         if (isset($_SESSION['login']) && $_SESSION['login'] === true && !empty($_SESSION['username'])) {
-          // Tampilkan nama user
           echo '<span class="px-4 py-2 text-cyan-600 font-semibold rounded-lg mr-2">'
             . htmlspecialchars($_SESSION['username']) . '</span>';
-          // Tampilkan ikon user yang dapat diklik
           echo '<a href="profile.php" class="flex items-center">';
           echo '  <img src="image/icon-user.png" alt="User" class="h-6 w-6" />';
           echo '</a>';
@@ -157,7 +149,7 @@ if ($result) {
     </nav>
   </header>
 
-  <!-- Pop-up Cart dengan Tailwind -->
+  <!-- Pop-up Cart -->
   <div id="popup" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <!-- Background overlay -->
     <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
@@ -206,13 +198,13 @@ if ($result) {
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200" id="cart-items">
-                <!-- Cart items will be inserted here by JavaScript -->
+                <!-- Cart items -->
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Updated Modal footer -->
+        <!-- Modal footer -->
         <div class="bg-gray-50 px-6 py-4 sm:px-6">
           <div class="flex flex-col space-y-4">
             <!-- Biaya Kirim -->
@@ -248,9 +240,9 @@ if ($result) {
     </div>
   </div>
 
+  <!-- Hero -->
   <section class="bg-blue-50 py-20">
     <div class="w-10/12 mx-auto flex flex-col md:flex-row items-center">
-      <!-- Teks Hero -->
       <div class="md:basis-1/2 text-center md:text-left">
         <h1 class="text-4xl font-bold text-cyan-600 mb-4">
           Selamat Datang di <span class="text-blue-600">Bailu Pharmacy</span>
@@ -262,13 +254,13 @@ if ($result) {
           Belanja Sekarang
         </a>
       </div>
-      <!-- Gambar Hero -->
       <div class="md:basis-1/2 mt-8 md:mt-0">
         <img src="image/icon-hero.png" alt="Icon Hero" class="w-full max-w-md mx-auto md:ml-auto" />
       </div>
     </div>
   </section>
 
+  <!-- Kategori Produk -->
   <section class="py-10">
     <div class="w-9/12 mx-auto">
       <h2 class="text-3xl font-bold text-cyan-600 text-center mb-8">Kategori Produk</h2>
@@ -318,14 +310,13 @@ if ($result) {
         <?php
         if (!empty($all_products)) {
           foreach ($all_products as $prod) {
-            // Jika foto_obat ada, tampilkan dalam bentuk gambar, jika tidak, tampilkan gambar default
+            // Ganti Format Gambar
             if (!empty($prod['foto_obat'])) {
-              $image_data = $prod['foto_obat']; // Data gambar BLOB
-              $image_base64 = base64_encode($image_data); // Encode gambar ke format base64
-              $image_src = 'data:image/jpeg;base64,' . $image_base64; // Set format gambar
+              $image_data = $prod['foto_obat'];
+              $image_base64 = base64_encode($image_data);
+              $image_src = 'data:image/jpeg;base64,' . $image_base64;
             } else {
-              // Gambar default jika foto_obat kosong
-              $image_src = 'image/products/default.png';
+              $image_src = 'image/no-product.png';
             }
         ?>
             <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
@@ -367,7 +358,7 @@ if ($result) {
   </section>
 
 
-
+  <!-- Testimoni -->
   <section class="py-10">
     <div class="w-9/12 mx-auto">
       <h2 class="text-3xl font-bold text-cyan-600 text-center mb-8">Testimoni Pelanggan</h2>
@@ -400,6 +391,7 @@ if ($result) {
     </div>
   </section>
 
+  <!-- Footer -->
   <section class="bg-cyan-600 py-10">
     <div class="w-9/12 mx-auto text-center text-white">
       <h2 class="text-3xl font-bold mb-4">Temukan Produk Terbaik untuk Kebutuhan Anda!</h2>
