@@ -185,7 +185,74 @@ function numberFormat(number) {
   return new Intl.NumberFormat("id-ID").format(number);
 }
 
-function submitOrder() {
+function choosePaymentType() {
+  const paymentPopupHTML = `
+    <div id="payment-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Pilih Tipe Pembayaran</h3>
+        <div class="space-y-4">
+          <button onclick="processCOD()" class="w-full px-4 py-2 bg-green-500 text-white font-medium rounded hover:bg-green-600">
+            Bayar di Tempat (COD)
+          </button>
+          <button onclick="showBankTransferOptions()" class="w-full px-4 py-2 bg-blue-500 text-white font-medium rounded hover:bg-blue-600">
+            Transfer Bank
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", paymentPopupHTML);
+}
+
+function processCOD() {
+  submitOrder("COD", null);
+  closePopups();
+}
+
+function showBankTransferOptions() {
+  const bankPopupHTML = `
+    <div id="bank-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Transfer Bank</h3>
+        <p class="text-sm text-gray-700 mb-2">Nomor Rekening: 123456789 (Bank Mandiri)</p>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti Transfer</label>
+        <input type="file" id="proof-of-transfer" accept=".jpg,.jpeg,.png,.pdf" class="block w-full border-gray-300 rounded-md mb-4">
+        <div class="flex justify-end space-x-3">
+          <button onclick="closePopups()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+            Batal
+          </button>
+          <button onclick="processBankTransfer()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Konfirmasi
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  closePopups();
+  document.body.insertAdjacentHTML("beforeend", bankPopupHTML);
+}
+
+function closePopups() {
+  document.querySelectorAll("#payment-popup, #bank-popup").forEach((popup) => popup.remove());
+}
+
+function processBankTransfer() {
+  const proofInput = document.getElementById("proof-of-transfer");
+  const proofFile = proofInput.files[0];
+
+  if (!proofFile) {
+    alert("Silakan upload bukti transfer.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("proof_of_transfer", proofFile);
+
+  submitOrder("Transfer Bank Mandiri", formData);
+  closePopups();
+}
+
+function submitOrder(paymentType, additionalData) {
   if (cart.length === 0) {
     alert("Keranjang kosong!");
     return;
@@ -196,6 +263,13 @@ function submitOrder() {
     formData.append("Id_Obat[]", item.id);
     formData.append("jumlah_item[]", item.jumlah);
   });
+  formData.append("payment_type", paymentType);
+
+  if (additionalData) {
+    for (const [key, value] of additionalData.entries()) {
+      formData.append(key, value);
+    }
+  }
 
   fetch("pesanan.action.php", {
     method: "POST",
@@ -208,7 +282,6 @@ function submitOrder() {
         saveCart();
         renderCart();
         updateCartCount();
-        hidePopup();
       } else {
         alert("Gagal mengkonfirmasi pesanan.");
       }
@@ -216,7 +289,7 @@ function submitOrder() {
     .catch((error) => console.error("Error submitting order:", error));
 }
 
-// Function to save cart to localStorage
 function saveCart() {
   localStorage.setItem("cart", JSON.stringify(cart));
 }
+
