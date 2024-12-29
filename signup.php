@@ -9,7 +9,7 @@ require "koneksi.php";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup - AyoMain</title>
+    <title>Signup - Bailu Pharmacy</title>
     <link href="src/output.css" rel="stylesheet">
 </head>
 

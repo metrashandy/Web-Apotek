@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Format file bukti transfer tidak valid.");
         }
 
-        if ($bukti_transfer['size'] > 2 * 1024 * 1024) { // Maksimum 2MB
+        if ($bukti_transfer['size'] > 2 * 1024 * 1024) {
             die("Ukuran file bukti transfer terlalu besar.");
         }
 

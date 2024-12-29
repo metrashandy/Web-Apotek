@@ -73,7 +73,7 @@ require "koneksi.php";
                 $result = $stmt->get_result();
                 $data = $result->fetch_assoc();
 
-                if ($data && password_verify($password, $hash)) {
+                if ($data && $password === $data['passwd']) {
                     $_SESSION['username'] = $data['Nama_pegawai'];
                     $_SESSION['login'] = true;
                     $_SESSION['role'] = 'admin';
@@ -88,18 +88,16 @@ require "koneksi.php";
                 $result = $stmt->get_result();
                 $data = $result->fetch_assoc();
 
-                if ($data && password_verify($password, $hash)) {
+                if ($data && password_verify($password, $data['password'])) {
                     // Set data pelanggan ke sesi
                     $_SESSION['username'] = $data['username'];
-                    $_SESSION['id_pelanggan'] = $data['Id_pelanggan']; // Simpan ID pelanggan ke sesi
+                    $_SESSION['id_pelanggan'] = $data['Id_pelanggan'];
                     $_SESSION['login'] = true;
                     $_SESSION['role'] = 'user';
-                
-                    // Redirect ke halaman home
                     header('Location: home.php');
                     exit();
                 }
-                
+
 
                 // Jika gagal login
             ?><script>
