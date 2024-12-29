@@ -13,14 +13,15 @@ if ($mysqli->connect_error) {
 // Query untuk mengambil data obat beserta jenisnya
 $query = "
     SELECT 
-        tb_obat.Id_Obat, 
-        tb_obat.Nama_Obat, 
-        tb_jenis_obat.Nama_jenis AS Jenis_obat, 
-        tb_obat.Stok_obat, 
-        tb_obat.Harga_satuan, 
-        tb_obat.foto_obat 
-    FROM tb_obat
-    JOIN tb_jenis_obat ON tb_obat.Id_jenis = tb_jenis_obat.Id_jenis
+    tb_obat.Id_Obat, 
+    tb_obat.Nama_Obat, 
+    tb_jenis_obat.Nama_jenis AS Jenis_obat, 
+    tb_obat.Stok_obat, 
+    tb_obat.Harga_satuan, 
+    tb_obat.foto_obat 
+FROM tb_obat
+JOIN tb_jenis_obat ON tb_obat.Id_jenis = tb_jenis_obat.Id_jenis 
+ORDER BY tb_obat.Id_Obat ASC
 ";
 
 $result = $mysqli->query($query);

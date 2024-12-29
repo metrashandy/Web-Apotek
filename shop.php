@@ -241,46 +241,59 @@ if ($result) {
                     Filter
                 </button>
             </div>
-
-            <section class="py-10">
-                <div class="w-full md:w-9/12 mx-auto">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <?php
-                        if (!empty($all_products)) {
-                            foreach ($all_products as $prod) {
-                                if (!empty($prod['foto_obat'])) {
-                                    $image_data = $prod['foto_obat'];
-                                    $image_base64 = base64_encode($image_data);
-                                    $image_src = 'data:image/jpeg;base64,' . $image_base64;
-                                } else {
-                                    $image_src = 'image/products/default.png';
-                                }
-                        ?>
-                                <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1">
-                                    <!-- Gambar produk -->
-                                    <img src="<?php echo $image_src; ?>" alt="<?php echo htmlspecialchars($prod['nama_obat']); ?>" class="w-full h-32 object-cover rounded-md mb-4" />
-                                    <!-- Nama Obat -->
-                                    <h3 class="text-lg font-semibold text-gray-700 mb-2"><?php echo htmlspecialchars($prod['nama_obat']); ?></h3>
-                                    <!-- Harga -->
-                                    <p class="text-cyan-600 font-semibold mb-2">Rp <?php echo number_format($prod['harga_satuan'], 0, ',', '.'); ?></p>
-                                    <!-- Jumlah Stok -->
-                                    <p class="text-sm text-gray-500 mb-4">Stok Tersedia: <span class="text-gray-700"><?php echo $prod['stok_obat']; ?></span></p>
-                                    <!-- Tombol Pesan Sekarang -->
-                                    <button class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition <?php echo $prod['stok_obat'] <= 0 ? 'opacity-50 cursor-not-allowed' : ''; ?>" onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>, <?php echo (int)$prod['stok_obat']; ?>)" <?php echo $prod['stok_obat'] <= 0 ? 'disabled' : ''; ?>>
-                                        <?php echo $prod['stok_obat'] <= 0 ? 'Stok Habis' : 'Pesan Sekarang'; ?>
-                                    </button>
-                                </div>
-                        <?php
-                            }
-                        } else {
-                            echo '<p class="text-center text-gray-500">Tidak ada produk di database.</p>';
-                        }
-                        ?>
-                    </div>
-                </div>
-            </section>
         </div>
+        <section class="py-10 bg-gray-50">
+            <div class="w-full md:w-9/12 mx-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <?php
+                    if (!empty($all_products)) {
+                        foreach ($all_products as $prod) {
+                            if (!empty($prod['foto_obat'])) {
+                                $image_data = $prod['foto_obat'];
+                                $image_base64 = base64_encode($image_data);
+                                $image_src = 'data:image/jpeg;base64,' . $image_base64;
+                            } else {
+                                $image_src = 'image/products/default.png';
+                            }
 
+                    ?>
+                            <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
+                                <!-- Gambar produk -->
+                                <img
+                                    src="<?php echo $image_src; ?>"
+                                    alt="<?php echo htmlspecialchars($prod['nama_obat']); ?>"
+                                    class="w-full h-32 object-contain mb-4" />
+                                <!-- Nama Obat -->
+                                <h3 class="text-lg font-semibold text-gray-700 mb-2">
+                                    <?php echo htmlspecialchars($prod['nama_obat']); ?>
+                                </h3>
+                                <!-- Harga -->
+                                <p class="text-cyan-600 font-semibold mb-2">
+                                    Rp <?php echo number_format($prod['harga_satuan'], 0, ',', '.'); ?>
+                                </p>
+                                <!-- Jumlah Stok -->
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Stok Tersedia:
+                                    <span class="text-gray-700"><?php echo $prod['stok_obat']; ?></span>
+                                </p>
+                                <!-- Tombol Pesan Sekarang -->
+                                <button
+                                    class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition
+                          <?php echo $prod['stok_obat'] <= 0 ? 'opacity-50 cursor-not-allowed' : ''; ?>"
+                                    onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>, <?php echo (int)$prod['stok_obat']; ?>)"
+                                    <?php echo $prod['stok_obat'] <= 0 ? 'disabled' : ''; ?>>
+                                    <?php echo $prod['stok_obat'] <= 0 ? 'Stok Habis' : 'Pesan Sekarang'; ?>
+                                </button>
+                            </div>
+                    <?php
+                        }
+                    } else {
+                        echo '<p class="text-center text-gray-500">Tidak ada produk di database.</p>';
+                    }
+                    ?>
+                </div>
+            </div>
+        </section>
         <script>
             function toggleDropdown1() {
                 let dropdown1 = document.getElementById('dropdown1');
