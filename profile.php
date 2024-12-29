@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $no_tlp = trim($_POST['no_tlp']);
     $alamat = trim($_POST['alamat']);
-    $current_password = $_POST['current_password']; // Password plain text yang diinput user
+    $current_password = $_POST['current_password'];
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
     $success_message = '';
@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $verify_result = $verify_stmt->get_result();
                 $user = $verify_result->fetch_assoc();
 
-                // password_verify() akan membandingkan password plain text dengan hash
                 if ($user && password_verify($current_password, $user['password'])) {
                     // Hash password baru
                     $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -92,22 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error_message = "Gagal memperbarui profil: " . $koneksi->error;
             }
         }
-
-        if (empty($error_message)) {
-            if ($update_stmt->execute()) {
-                $success_message = "Profil berhasil diperbarui!";
-                // Refresh data user
-                $stmt->execute();
-                $user_data = $stmt->get_result()->fetch_assoc();
-            } else {
-                $error_message = "Gagal memperbarui profil: " . $koneksi->error;
-            }
-        }
     }
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -128,9 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <script src="cart.js"></script>
 
-<body>
+<body class="bg-gray-50">
     <!-- Navbar -->
-    <header class="sticky py-5">
+    <header class="sticky py-5 bg-white shadow-md">
         <nav class="w-9/12 flex flex-row mx-auto items-center">
             <div class="flex items-center basis-1/4">
                 <a href="home.php" class="flex items-center">
@@ -164,15 +152,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php
                 // Tampilkan ikon user dan nama jika sudah login, atau tombol login jika belum
                 if (isset($_SESSION['login']) && $_SESSION['login'] === true && !empty($_SESSION['username'])) {
-                    // Tampilkan nama user
-                    echo '<span class="px-4 py-2 text-cyan-600 font-semibold rounded-lg mr-2">'
+                    echo '<span class="px-4 py-2 text-cyan-600 font-semibold mr-2">'
                         . htmlspecialchars($_SESSION['username']) . '</span>';
-                    // Tampilkan ikon user yang dapat diklik
                     echo '<a href="profile.php" class="flex items-center">';
-                    echo '  <img src="image/icon-user.png" alt="User" class="h-6 w-6" />';
+                    echo '  <img src="image/icon-user.png" alt="User" class="h-6 w-6 hover:opacity-80" />';
                     echo '</a>';
                 } else {
-                    // Jika belum login, tampilkan tombol login
                     echo '<a href="login.php" class="px-4 py-2 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700">LOGIN</a>';
                 }
                 ?>
@@ -180,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </nav>
     </header>
 
-    <!-- Pop-up Cart dengan Tailwind -->
+    <!-- Pop-up Cart -->
     <div id="popup" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Background overlay -->
         <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
@@ -256,8 +241,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Main Content -->
     <main class="w-9/12 mx-auto py-8">
-        <div class="bg-slate-100 rounded-lg shadow-md p-6 max-w-2xl mx-auto">
-            <h1 class="text-2xl font-bold text-gray-900 mb-6">Profil Saya</h1>
+        <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button class="px-6 py-3 border-b-2 border-cyan-600 text-cyan-600 font-semibold">
+                    Profil Saya
+                </button>
+                <a href="history_belanja.php" class="px-6 py-3 text-gray-500 hover:text-gray-700 font-semibold">
+                    Riwayat Pesanan
+                </a>
+            </div>
 
             <?php if (!empty($success_message)): ?>
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -272,106 +265,111 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <form method="POST" class="space-y-6">
-                <!-- Username (readonly) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Username</label>
-                    <input type="text" value="<?php echo htmlspecialchars($user_data['username']); ?>"
-                        class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 cursor-not-allowed"
-                        readonly>
-                </div>
+                <!-- Grid layout for inputs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Username and Email side by side -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" value="<?php echo htmlspecialchars($user_data['username']); ?>"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm cursor-not-allowed focus:border-cyan-500 focus:ring-cyan-500"
+                            readonly>
+                    </div>
 
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email" id="email"
-                        value="<?php echo htmlspecialchars($user_data['email']); ?>"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500" required>
-                </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" id="email"
+                            value="<?php echo htmlspecialchars($user_data['email']); ?>"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500" required>
+                    </div>
 
-                <!-- No. Telepon -->
-                <div>
-                    <label for="no_tlp" class="block text-sm font-medium text-gray-700">No. Telepon</label>
-                    <input type="text" name="no_tlp" id="no_tlp"
-                        value="<?php echo htmlspecialchars($user_data['no_tlp']); ?>"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500" required>
-                </div>
+                    <!-- Phone and Address side by side -->
+                    <div>
+                        <label for="no_tlp" class="block text-sm font-medium text-gray-700">No. Telepon</label>
+                        <input type="text" name="no_tlp" id="no_tlp"
+                            value="<?php echo htmlspecialchars($user_data['no_tlp']); ?>"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500" required>
+                    </div>
 
-                <!-- Alamat -->
-                <div>
-                    <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
-                    <textarea name="alamat" id="alamat" rows="3"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500" required><?php echo htmlspecialchars($user_data['alamat']); ?></textarea>
-                </div>
-
-                <!-- Current Password -->
-                <div>
-                    <label for="current_password" class="block text-sm font-medium text-gray-700">Password Saat Ini</label>
-                    <div class="relative">
-                        <input type="password" name="current_password" id="current_password"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
-                        <button type="button"
-                            onclick="togglePassword('current_password')"
-                            class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600 hover:text-gray-800">
-                            <!-- Eye Icon -->
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
+                    <div>
+                        <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
+                        <textarea name="alamat" id="alamat" rows="1"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500" required><?php echo htmlspecialchars($user_data['alamat']); ?></textarea>
                     </div>
                 </div>
 
-                <!-- Password Baru -->
-                <div>
-                    <label for="new_password" class="block text-sm font-medium text-gray-700">Password Baru</label>
-                    <div class="relative">
-                        <input type="password" name="new_password" id="new_password"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
-                        <button type="button"
-                            onclick="togglePassword('new_password')"
-                            class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600 hover:text-gray-800">
-                            <!-- Eye Icon -->
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
+                <!-- Password Section -->
+                <div class="border-t pt-6 mt-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Ubah Password</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Current Password -->
+                        <div>
+                            <label for="current_password" class="block text-sm font-medium text-gray-700">Password Saat Ini</label>
+                            <div class="relative">
+                                <input type="password" name="current_password" id="current_password"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
+                                <button type="button"
+                                    onclick="togglePassword('current_password')"
+                                    class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600 hover:text-gray-800">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- New Password -->
+                        <div>
+                            <label for="new_password" class="block text-sm font-medium text-gray-700">Password Baru</label>
+                            <div class="relative">
+                                <input type="password" name="new_password" id="new_password"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
+                                <button type="button"
+                                    onclick="togglePassword('new_password')"
+                                    class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600 hover:text-gray-800">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div>
+                            <label for="confirm_password" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                            <div class="relative">
+                                <input type="password" name="confirm_password" id="confirm_password"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
+                                <button type="button"
+                                    onclick="togglePassword('confirm_password')"
+                                    class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600 hover:text-gray-800">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    <p class="mt-2 text-sm text-gray-500">Kosongkan jika tidak ingin mengubah password</p>
                 </div>
 
-                <!-- Konfirmasi Password -->
-                <div>
-                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
-                    <div class="relative">
-                        <input type="password" name="confirm_password" id="confirm_password"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
-                        <button type="button"
-                            onclick="togglePassword('confirm_password')"
-                            class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600 hover:text-gray-800">
-                            <!-- Eye Icon -->
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-                    <p class="mt-1 text-sm text-gray-500">Kosongkan jika tidak ingin mengubah password</p>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="flex justify-between w-full">
-                    <a href="logout.php" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">LOGOUT</a>
+                <!-- Submit dan Logout -->
+                <div class="flex justify-between items-center pt-6 border-t">
+                    <a href="logout.php" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
+                        LOGOUT
+                    </a>
                     <button type="submit"
                         class="inline-flex justify-center rounded-md border border-transparent bg-cyan-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2">
                         Simpan Perubahan
                     </button>
-                    <a href="history_belanja.php" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">History pesanan</a>
                 </div>
             </form>
         </div>

@@ -12,7 +12,9 @@ $result = $mysqli->query("
         GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS Rincian_Obat,
         pl.alamat AS Alamat,
         pl.no_tlp AS No_Telepon,
-        GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Detail_Obat
+        GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Detail_Obat,
+        p.`Tipe Pembayaran` AS Tipe_Pembayaran,
+        IFNULL(p.Bukti_transfer, '') AS Bukti_Transfer
     FROM 
         tb_pesanan p
     JOIN 
@@ -24,7 +26,7 @@ $result = $mysqli->query("
     WHERE 
         p.status = 'PENDING'
     GROUP BY 
-        p.Id_pesanan, pl.username, pl.alamat, pl.no_tlp
+        p.Id_pesanan, pl.username, pl.alamat, pl.no_tlp, p.`Tipe Pembayaran`, p.Bukti_transfer
 ");
 ?>
 
@@ -36,6 +38,8 @@ $result = $mysqli->query("
             <th>LIST BARANG</th>
             <th>ALAMAT</th>
             <th>NO TELEPON</th>
+            <th>TIPE PEMBAYARAN</th>
+            <th>BUKTI TRANSFER</th>
             <th>ACTION</th>
         </tr>
     </thead>
@@ -44,14 +48,26 @@ $result = $mysqli->query("
             <tr>
                 <td><?= htmlspecialchars($row['ID_Pesanan']) ?></td>
                 <td><?= htmlspecialchars($row['Nama_Pelanggan']) ?></td>
-                <td>
-                    <?= htmlspecialchars($row['Rincian_Obat']) ?>
-                </td>
+                <td><?= htmlspecialchars($row['Rincian_Obat']) ?></td>
                 <td><?= htmlspecialchars($row['Alamat']) ?></td>
                 <td><?= htmlspecialchars($row['No_Telepon']) ?></td>
+                <td><?= htmlspecialchars($row['Tipe_Pembayaran']) ?></td>
+                <td>
+                    <?php if (!empty($row['Bukti_Transfer'])): ?>
+                        <a href="data:image/jpeg;base64,<?= base64_encode($row['Bukti_Transfer']) ?>" target="_blank">Lihat Bukti</a>
+                    <?php else: ?>
+                        Tidak Ada
+                    <?php endif; ?>
+                </td>
                 <td>
                     <!-- Tombol Tampilkan Struk -->
-                    <button type="button" class="btn btn-info btn-sm" onclick="tampilkanStruk(<?= htmlspecialchars(json_encode($row)) ?>)">
+                    <button type="button" class="btn btn-info btn-sm" onclick='tampilkanStruk(<?= json_encode([
+                                                                                                    'ID_Pesanan' => $row['ID_Pesanan'],
+                                                                                                    'Nama_Pelanggan' => $row['Nama_Pelanggan'],
+                                                                                                    'Alamat' => $row['Alamat'],
+                                                                                                    'Detail_Obat' => $row['Detail_Obat'],
+                                                                                                    'Tipe_Pembayaran' => $row['Tipe_Pembayaran']
+                                                                                                ]) ?>)'>
                         Tampilkan Struk
                     </button>
 
@@ -79,6 +95,7 @@ $result = $mysqli->query("
                     <p><strong>ID Pesanan:</strong> <span id="strukId"></span></p>
                     <p><strong>Nama Pelanggan:</strong> <span id="strukPelanggan"></span></p>
                     <p><strong>Alamat:</strong> <span id="strukAlamat"></span></p>
+                    <p><strong>Tipe Pembayaran:</strong> <span id="strukTipePembayaran"></span></p>
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -100,36 +117,37 @@ $result = $mysqli->query("
 </div>
 
 <script>
-function tampilkanStruk(data) {
-    document.getElementById("strukId").innerText = data.ID_Pesanan;
-    document.getElementById("strukPelanggan").innerText = data.Nama_Pelanggan;
-    document.getElementById("strukAlamat").innerText = data.Alamat;
+    function tampilkanStruk(data) {
+        document.getElementById("strukId").innerText = data.ID_Pesanan;
+        document.getElementById("strukPelanggan").innerText = data.Nama_Pelanggan;
+        document.getElementById("strukAlamat").innerText = data.Alamat;
+        document.getElementById("strukTipePembayaran").innerText = data.Tipe_Pembayaran;
 
-    const items = data.Detail_Obat.split(", ");
-    const tbody = document.getElementById("strukItems");
-    tbody.innerHTML = "";
+        const items = data.Detail_Obat.split(", ");
+        const tbody = document.getElementById("strukItems");
+        tbody.innerHTML = "";
 
-    let totalHarga = 0;
+        let totalHarga = 0;
 
-    items.forEach((item) => {
-        const [nama, jumlah, harga] = item.split(";");
-        const subtotal = jumlah * harga;
-        totalHarga += subtotal;
+        items.forEach((item) => {
+            const [nama, jumlah, harga] = item.split(";");
+            const subtotal = jumlah * harga;
+            totalHarga += subtotal;
 
-        const row = `<tr>
+            const row = `<tr>
             <td>${nama}</td>
             <td>${jumlah}</td>
             <td>${harga}</td>
             <td>${subtotal}</td>
         </tr>`;
-        tbody.innerHTML += row;
-    });
+            tbody.innerHTML += row;
+        });
 
-    const biayaPengiriman = 10000;
-    document.getElementById("strukTotalHarga").innerText = `Rp. ${totalHarga}`;
-    document.getElementById("strukTotalBayar").innerText = `Rp. ${totalHarga + biayaPengiriman}`;
+        const biayaPengiriman = 10000;
+        document.getElementById("strukTotalHarga").innerText = `Rp. ${totalHarga}`;
+        document.getElementById("strukTotalBayar").innerText = `Rp. ${totalHarga + biayaPengiriman}`;
 
-    const modal = new bootstrap.Modal(document.getElementById("modalStruk"));
-    modal.show();
-}
+        const modal = new bootstrap.Modal(document.getElementById("modalStruk"));
+        modal.show();
+    }
 </script>

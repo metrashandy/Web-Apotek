@@ -1,5 +1,47 @@
 <?php
 session_start();
+
+$host   = 'localhost';
+$user   = 'root';
+$pass   = '';
+$dbname = 'apotek';
+
+$koneksi = new mysqli($host, $user, $pass, $dbname);
+if ($koneksi->connect_error) {
+    die("Koneksi gagal: " . $koneksi->connect_error);
+}
+
+// Filter dan Sorting
+$where = "";
+$order = " ORDER BY nama_obat ASC";
+
+if (!empty($_GET['kategori'])) {
+    $kategori = $koneksi->real_escape_string($_GET['kategori']);
+    $where .= " AND tb_jenis_obat.nama_jenis = '$kategori'";
+}
+if (!empty($_GET['bentuk'])) {
+    $bentuk = $koneksi->real_escape_string($_GET['bentuk']);
+    $where .= " AND tb_jenis_obat.bentuk_obat = '$bentuk'";
+}
+if (!empty($_GET['urutkan'])) {
+    $urutkan = $_GET['urutkan'];
+    if ($urutkan === 'Z-A') {
+        $order = " ORDER BY nama_obat DESC";
+    }
+}
+
+$query = "SELECT tb_obat.id_obat, tb_obat.nama_obat, tb_obat.stok_obat, tb_obat.harga_satuan, tb_obat.foto_obat, tb_jenis_obat.nama_jenis, tb_jenis_obat.bentuk_obat 
+          FROM tb_obat 
+          JOIN tb_jenis_obat ON tb_obat.id_jenis = tb_jenis_obat.id_jenis 
+          WHERE 1=1 $where $order";
+
+$result = $koneksi->query($query);
+$all_products = [];
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $all_products[] = $row;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -122,19 +164,35 @@ session_start();
 
                 <!-- Modal footer -->
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <div class="flex justify-between items-center w-full">
+                    <div class="flex flex-col space-y-4 w-full">
+                        <!-- Total Harga -->
                         <div class="text-lg font-semibold text-gray-900">
-                            Total: Rp <span id="total-harga" class="text-cyan-600">0</span>
+                            Total Harga: Rp <span id="total-harga" class="text-cyan-600">0</span>
                         </div>
-                        <div class="flex space-x-3">
-                            <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
-                                Lanjut Belanja
-                            </button>
-                            <button type="button" onclick="submitOrder()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                Konfirmasi Pesanan
-                            </button>
+
+                        <!-- Biaya Kirim -->
+                        <div class="text-lg font-semibold text-gray-900">
+                            Biaya Kirim: Rp <span id="biaya-kirim" class="text-cyan-600">0</span>
+                        </div>
+
+                        <!-- Total Biaya -->
+                        <div class="text-lg font-semibold text-gray-900">
+                            Total Biaya: Rp <span id="total-biaya" class="text-cyan-600">0</span>
+                        </div>
+
+                        <!-- Tombol Aksi -->
+                        <div class="flex justify-between items-center w-full">
+                            <div class="flex space-x-3">
+                                <button type="button" onclick="hidePopup()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:mt-0 sm:w-auto sm:text-sm">
+                                    Lanjut Belanja
+                                </button>
+                                <button type="button" onclick="choosePaymentType()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cyan-600 text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                    Konfirmasi Pesanan
+                                </button>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -142,87 +200,133 @@ session_start();
 
     <!-- Dropdown -->
     <main>
-        <div class="w-8/12 mx-auto">
-            <div class="flex flex-row gap-20 mt-8 mb-2">
-                <div class="relative select-none flex-1" id="dropdownButton1">
-                    <div onclick="toggleDropdown1()" class="border-solid border-cyan-400 border-2 px-5 py-2 rounded cursor-pointer flex justify-between w-full shadow-sm">
-                        KATEGORI
-                        <img src="image/arrowdown.svg" alt="" width="10">
-                    </div>
-                    <div class="rounded border-2 border-cyan-400 absolute top-10 w-full shadow-md hidden z-10 bg-white font-semibold" id="dropdown1">
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">OBAT</div>
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">SUPLEMEN</div>
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">VITAMIN</div>
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">PRODUK BAYI</div>
-                    </div>
-                </div>
+        <div class="w-full md:w-9/12 mx-auto">
+            <div class="flex flex-wrap gap-4 mt-8 mb-4 justify-center">
+                <!-- Dropdown Kategori -->
+                <select id="kategori" class="border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
+                    <option value="">Semua Kategori</option>
+                    <option value="Obat">Obat</option>
+                    <option value="Suplemen">Suplemen</option>
+                    <option value="Vitamin">Vitamin</option>
+                    <option value="Produk Bayi">Produk Bayi</option>
+                </select>
 
-                <div class="relative select-none flex-1" id="dropdownButton2">
-                    <div onclick="toggleDropdown2()" class="border-solid border-cyan-400 border-2 px-5 py-2 rounded cursor-pointer flex justify-between w-full shadow-sm">
-                        BENTUK OBAT
-                        <img src="image/arrowdown.svg" alt="" width="10">
-                    </div>
-                    <div class="rounded border-2 border-cyan-400 absolute top-10 w-full shadow-md hidden z-10 bg-white font-semibold" id="dropdown2">
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">SIRUP</div>
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">TABLET</div>
-                    </div>
-                </div>
+                <!-- Dropdown Bentuk Obat -->
+                <select id="bentuk" class="border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
+                    <option value="">Semua Bentuk</option>
+                    <option value="Tablet">Tablet</option>
+                    <option value="Sirup">Sirup</option>
+                    <option value="kapsul">Kapsul</option>
+                    <option value="bubuk">Bubuk</option>
+                    <option value="makanan">Makanan</option>
+                </select>
 
-                <div class="relative select-none flex-1" id="dropdownButton3">
-                    <div onclick="toggleDropdown3()" class="border-solid border-cyan-400 border-2 px-5 py-2 rounded cursor-pointer flex justify-between w-full shadow-sm">
-                        MENGURUTKAN
-                        <img src="image/arrowdown.svg" alt="" width="10">
-                    </div>
-                    <div class="rounded border-2 border-cyan-400 absolute top-10 w-full shadow-md hidden z-10 bg-white font-semibold" id="dropdown3">
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">JUDUL (A-Z)</div>
-                        <div class="cursor-pointer hover:bg-cyan-500 p-4">JUDUL (Z-A)</div>
-                    </div>
-                </div>
+                <!-- Dropdown Urutkan -->
+                <select id="urutkan" class="border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring focus:ring-cyan-300">
+                    <option value="A-Z">Judul (A-Z)</option>
+                    <option value="Z-A">Judul (Z-A)</option>
+                </select>
+
+                <button onclick="applyFilters()" class="bg-cyan-600 text-white px-4 py-2 rounded shadow hover:bg-cyan-700 transition">
+                    Filter
+                </button>
             </div>
 
-            <script>
-                function toggleDropdown1() {
-                    let dropdown1 = document.getElementById('dropdown1');
-                    let dropdown2 = document.getElementById('dropdown2');
-                    let dropdown3 = document.getElementById('dropdown3');
+            <section class="py-10 bg-gray-50">
+                <div class="w-full md:w-9/12 mx-auto">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <?php
+                        if (!empty($all_products)) {
+                            foreach ($all_products as $prod) {
+                                if (!empty($prod['foto_obat'])) {
+                                    $image_data = $prod['foto_obat'];
+                                    $image_base64 = base64_encode($image_data);
+                                    $image_src = 'data:image/jpeg;base64,' . $image_base64;
+                                } else {
+                                    $image_src = 'image/products/default.png';
+                                }
+                        ?>
+                                <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1">
+                                    <!-- Gambar produk -->
+                                    <img src="<?php echo $image_src; ?>" alt="<?php echo htmlspecialchars($prod['nama_obat']); ?>" class="w-full h-32 object-cover rounded-md mb-4" />
+                                    <!-- Nama Obat -->
+                                    <h3 class="text-lg font-semibold text-gray-700 mb-2"><?php echo htmlspecialchars($prod['nama_obat']); ?></h3>
+                                    <!-- Harga -->
+                                    <p class="text-cyan-600 font-semibold mb-2">Rp <?php echo number_format($prod['harga_satuan'], 0, ',', '.'); ?></p>
+                                    <!-- Jumlah Stok -->
+                                    <p class="text-sm text-gray-500 mb-4">Stok Tersedia: <span class="text-gray-700"><?php echo $prod['stok_obat']; ?></span></p>
+                                    <!-- Tombol Pesan Sekarang -->
+                                    <button class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition <?php echo $prod['stok_obat'] <= 0 ? 'opacity-50 cursor-not-allowed' : ''; ?>" onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>, <?php echo (int)$prod['stok_obat']; ?>)" <?php echo $prod['stok_obat'] <= 0 ? 'disabled' : ''; ?>>
+                                        <?php echo $prod['stok_obat'] <= 0 ? 'Stok Habis' : 'Pesan Sekarang'; ?>
+                                    </button>
+                                </div>
+                        <?php
+                            }
+                        } else {
+                            echo '<p class="text-center text-gray-500">Tidak ada produk di database.</p>';
+                        }
+                        ?>
+                    </div>
+                </div>
+            </section>
+        </div>
 
-                    if (dropdown1.classList.contains('hidden')) {
-                        dropdown1.classList.remove('hidden');
-                        dropdown2.classList.add('hidden');
-                        dropdown3.classList.add('hidden');
-                    } else {
-                        dropdown1.classList.add('hidden');
-                    }
+        <script>
+            function toggleDropdown1() {
+                let dropdown1 = document.getElementById('dropdown1');
+                let dropdown2 = document.getElementById('dropdown2');
+                let dropdown3 = document.getElementById('dropdown3');
+
+                if (dropdown1.classList.contains('hidden')) {
+                    dropdown1.classList.remove('hidden');
+                    dropdown2.classList.add('hidden');
+                    dropdown3.classList.add('hidden');
+                } else {
+                    dropdown1.classList.add('hidden');
                 }
+            }
 
-                function toggleDropdown2() {
-                    let dropdown1 = document.getElementById('dropdown1');
-                    let dropdown2 = document.getElementById('dropdown2');
-                    let dropdown3 = document.getElementById('dropdown3');
+            function toggleDropdown2() {
+                let dropdown1 = document.getElementById('dropdown1');
+                let dropdown2 = document.getElementById('dropdown2');
+                let dropdown3 = document.getElementById('dropdown3');
 
-                    if (dropdown2.classList.contains('hidden')) {
-                        dropdown2.classList.remove('hidden');
-                        dropdown1.classList.add('hidden');
-                        dropdown3.classList.add('hidden');
-                    } else {
-                        dropdown2.classList.add('hidden');
-                    }
+                if (dropdown2.classList.contains('hidden')) {
+                    dropdown2.classList.remove('hidden');
+                    dropdown1.classList.add('hidden');
+                    dropdown3.classList.add('hidden');
+                } else {
+                    dropdown2.classList.add('hidden');
                 }
+            }
 
-                function toggleDropdown3() {
-                    let dropdown1 = document.getElementById('dropdown1');
-                    let dropdown2 = document.getElementById('dropdown2');
-                    let dropdown3 = document.getElementById('dropdown3');
+            function toggleDropdown3() {
+                let dropdown1 = document.getElementById('dropdown1');
+                let dropdown2 = document.getElementById('dropdown2');
+                let dropdown3 = document.getElementById('dropdown3');
 
-                    if (dropdown3.classList.contains('hidden')) {
-                        dropdown3.classList.remove('hidden');
-                        dropdown1.classList.add('hidden');
-                        dropdown2.classList.add('hidden');
-                    } else {
-                        dropdown3.classList.add('hidden');
-                    }
+                if (dropdown3.classList.contains('hidden')) {
+                    dropdown3.classList.remove('hidden');
+                    dropdown1.classList.add('hidden');
+                    dropdown2.classList.add('hidden');
+                } else {
+                    dropdown3.classList.add('hidden');
                 }
-            </script>
+            }
+
+            function applyFilters() {
+                const kategori = document.getElementById('kategori').value;
+                const bentuk = document.getElementById('bentuk').value;
+                const urutkan = document.getElementById('urutkan').value;
+
+                let params = new URLSearchParams();
+                if (kategori) params.append('kategori', kategori);
+                if (bentuk) params.append('bentuk', bentuk);
+                if (urutkan) params.append('urutkan', urutkan);
+
+                window.location.href = '?' + params.toString();
+            }
+        </script>
         </div>
     </main>
 </body>

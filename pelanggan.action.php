@@ -1,4 +1,6 @@
 <?php
+require_once 'check_admin.php';
+checkAdmin();
 
 if ($_POST['action'] == 'add') {                //jika mode "add"
     $id = $_POST['Id_pelanggan'];

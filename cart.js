@@ -26,7 +26,6 @@ window.addEventListener("storage", (event) => {
 function updateCartCount() {
   const cartCountElement = document.getElementById("cart-count");
   if (cartCountElement) {
-    // Calculate total quantity
     const totalQuantity = cart.reduce((total, item) => total + item.jumlah, 0);
     cartCountElement.textContent = totalQuantity;
   }
@@ -114,6 +113,9 @@ function updateQuantity(index, jumlah) {
 function renderCart() {
   const tbody = document.getElementById("cart-items");
   const totalHargaEl = document.getElementById("total-harga");
+  const biayaKirimEl = document.getElementById("biaya-kirim");
+  const totalBiayaEl = document.getElementById("total-biaya");
+
   tbody.innerHTML = "";
   let totalHarga = 0;
 
@@ -127,6 +129,8 @@ function renderCart() {
         </tr>
       `;
     totalHargaEl.textContent = "0";
+    biayaKirimEl.textContent = "Rp 0";
+    totalBiayaEl.textContent = "Rp 0";
     return;
   }
 
@@ -178,14 +182,115 @@ function renderCart() {
     totalHarga += item.harga * item.jumlah;
   });
 
-  totalHargaEl.textContent = numberFormat(totalHarga);
+  const biayaKirim = 10000; // Biaya kirim tetap
+  const totalBiaya = totalHarga + biayaKirim;
+
+  totalHargaEl.textContent = `Rp ${numberFormat(totalHarga)}`;
+  biayaKirimEl.textContent = `Rp ${numberFormat(biayaKirim)}`;
+  totalBiayaEl.textContent = `Rp ${numberFormat(totalBiaya)}`;
 }
+
 
 function numberFormat(number) {
   return new Intl.NumberFormat("id-ID").format(number);
 }
 
-function submitOrder() {
+function choosePaymentType() {
+  const paymentPopupHTML = `
+    <div id="payment-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Pilih Tipe Pembayaran</h3>
+        <div class="space-y-4">
+          <button onclick="processCOD()" class="w-full px-4 py-2 bg-green-500 text-white font-medium rounded hover:bg-green-600">
+            Bayar di Tempat (COD)
+          </button>
+          <button onclick="showBankTransferOptions()" class="w-full px-4 py-2 bg-blue-500 text-white font-medium rounded hover:bg-blue-600">
+            Transfer Bank
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", paymentPopupHTML);
+}
+
+function processCOD() {
+  submitOrder("COD", null);
+  closePopups();
+}
+
+function showBankTransferOptions() {
+  const bankPopupHTML = `
+    <div id="bank-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Transfer Bank</h3>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Bank</label>
+        <select id="bank-select" class="block w-full border-gray-300 rounded-md mb-4" onchange="updateBankDetails()">
+          <option value="Mandiri">Bank Mandiri</option>
+          <option value="BNI">Bank BNI</option>
+          <option value="BCA">Bank BCA</option>
+          <option value="BRI">Bank BRI</option>
+        </select>
+        <p id="bank-details" class="text-sm text-gray-500 mb-4">
+          Nomor Rekening: <strong>1234567890</strong> (Mandiri)
+        </p>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti Transfer</label>
+        <input type="file" id="proof-of-transfer" accept=".jpg,.jpeg,.png,.pdf" class="block w-full border-gray-300 rounded-md mb-4">
+        <div class="text-sm text-red-500 mb-2 hidden" id="file-size-error">Ukuran file tidak boleh lebih dari 1 MB.</div>
+        <div class="flex justify-end space-x-3">
+          <button onclick="closePopups()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+            Batal
+          </button>
+          <button onclick="processBankTransfer()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Konfirmasi
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  closePopups();
+  document.body.insertAdjacentHTML("beforeend", bankPopupHTML);
+  updateBankDetails(); // Set default bank details
+}
+
+function closePopups() {
+  document.querySelectorAll("#payment-popup, #bank-popup").forEach((popup) => popup.remove());
+}
+
+function processBankTransfer() {
+  const proofInput = document.getElementById("proof-of-transfer");
+  const bankSelect = document.getElementById("bank-select");
+  const proofFile = proofInput.files[0];
+  const fileSizeError = document.getElementById("file-size-error");
+  const selectedBank = bankSelect.value;
+
+  // Validasi ukuran file (maksimum 1 MB)
+  if (proofFile && proofFile.size > 1 * 1024 * 1024) {
+    fileSizeError.classList.remove("hidden");
+    return;
+  } else {
+    fileSizeError.classList.add("hidden");
+  }
+
+  if (!proofFile) {
+    alert("Silakan upload bukti transfer.");
+    return;
+  }
+
+  if (!selectedBank) {
+    alert("Silakan pilih bank.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("proof_of_transfer", proofFile);
+  formData.append("selected_bank", selectedBank);
+
+  submitOrder(`Transfer Bank ${selectedBank}`, formData);
+  closePopups();
+}
+
+function submitOrder(paymentType, additionalData) {
   if (cart.length === 0) {
     alert("Keranjang kosong!");
     return;
@@ -196,6 +301,13 @@ function submitOrder() {
     formData.append("Id_Obat[]", item.id);
     formData.append("jumlah_item[]", item.jumlah);
   });
+  formData.append("payment_type", paymentType);
+
+  if (additionalData) {
+    for (const [key, value] of additionalData.entries()) {
+      formData.append(key, value);
+    }
+  }
 
   fetch("pesanan.action.php", {
     method: "POST",
@@ -208,7 +320,6 @@ function submitOrder() {
         saveCart();
         renderCart();
         updateCartCount();
-        hidePopup();
       } else {
         alert("Gagal mengkonfirmasi pesanan.");
       }
@@ -216,7 +327,6 @@ function submitOrder() {
     .catch((error) => console.error("Error submitting order:", error));
 }
 
-// Function to save cart to localStorage
 function saveCart() {
   localStorage.setItem("cart", JSON.stringify(cart));
 }

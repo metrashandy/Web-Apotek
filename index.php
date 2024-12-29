@@ -1,5 +1,7 @@
 <?php
 require "session.php";
+require_once 'check_admin.php';
+checkAdmin();
 
 // Menghubungkan ke database
 $servername = "localhost";
@@ -262,12 +264,6 @@ $accountPages = ['settings']; // Tambahkan halaman lain jika ada
                         </button>
                         <div class="collapse <?php echo in_array($page, $accountPages) ? 'show' : ''; ?>" id="account-collapse">
                             <ul class="ps-3">
-                                <li>
-                                    <a href="#" class="<?php echo ($page == 'settings') ? 'active' : ''; ?>">
-                                        <i class="fas fa-cog"></i>
-                                        <span class="link-text">Settings</span>
-                                    </a>
-                                </li>
                                 <li>
                                     <a href="logout.php">
                                         <i class="fas fa-sign-out-alt"></i>
