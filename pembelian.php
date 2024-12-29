@@ -11,26 +11,29 @@ if ($mysqli->connect_error) {
 // Query data pembelian
 $query = "
     SELECT 
-        p.Id_pembelian AS ID_pembelian,
-        p.tanggal_pembelian AS tanggal,
-        sp.Nama_suplier AS suplier,
-        GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS Daftar_Item,
-        GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Rincian_Item,
-        p.total_item AS Item,
-        p.total_harga AS Harga,
-        p.Total_bayar AS Total_bayar,
-        p.kembalian AS Kembalian,
-        pd.Id_obat AS Id_obat
-    FROM 
-        tb_pembelian p
-    JOIN 
-        tb_suplier sp ON p.Id_suplier = sp.Id_suplier
-    JOIN 
-        tb_pembelian_detail pd ON p.Id_pembelian = pd.Id_pembelian
-    JOIN 
-        tb_obat o ON pd.Id_obat = o.Id_Obat
-    GROUP BY 
-        p.Id_pembelian;
+    p.Id_pembelian AS ID_pembelian,
+    p.tanggal_pembelian AS tanggal,
+    sp.Nama_suplier AS suplier,
+    GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS Daftar_Item,
+    GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Rincian_Item,
+    p.total_item AS Item,
+    p.total_harga AS Harga,
+    p.Total_bayar AS Total_bayar,
+    p.kembalian AS Kembalian,
+    pd.Id_obat AS Id_obat
+FROM 
+    tb_pembelian p
+JOIN 
+    tb_suplier sp ON p.Id_suplier = sp.Id_suplier
+JOIN 
+    tb_pembelian_detail pd ON p.Id_pembelian = pd.Id_pembelian
+JOIN 
+    tb_obat o ON pd.Id_obat = o.Id_Obat
+GROUP BY 
+    p.Id_pembelian
+ORDER BY 
+    p.tanggal_pembelian DESC;
+
 ";
 $result = $mysqli->query($query);
 if (!$result) {

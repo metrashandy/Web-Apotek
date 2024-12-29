@@ -11,26 +11,29 @@ if ($mysqli->connect_error) {
 // Query untuk daftar pesanan
 $result = $mysqli->query("
     SELECT 
-        p.Id_pesanan AS ID_Pesanan,
-        pl.username AS Nama_Pelanggan,
-        GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS Rincian_Obat,
-        pl.alamat AS Alamat,
-        pl.no_tlp AS No_Telepon,
-        GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Detail_Obat,
-        p.`Tipe Pembayaran` AS Tipe_Pembayaran,
-        IFNULL(p.Bukti_transfer, '') AS Bukti_Transfer
-    FROM 
-        tb_pesanan p
-    JOIN 
-        tb_pelanggan pl ON p.Id_pelanggan = pl.Id_pelanggan
-    JOIN 
-        tb_pesanan_detail pd ON p.Id_pesanan = pd.Id_pesanan
-    JOIN 
-        tb_obat o ON pd.Id_obat = o.Id_Obat
-    WHERE 
-        p.status = 'PENDING'
-    GROUP BY 
-        p.Id_pesanan, pl.username, pl.alamat, pl.no_tlp, p.`Tipe Pembayaran`, p.Bukti_transfer
+    p.Id_pesanan AS ID_Pesanan,
+    pl.username AS Nama_Pelanggan,
+    GROUP_CONCAT(o.Nama_Obat SEPARATOR ', ') AS Rincian_Obat,
+    pl.alamat AS Alamat,
+    pl.no_tlp AS No_Telepon,
+    GROUP_CONCAT(CONCAT(o.Nama_Obat, ';', pd.jumlah_item, ';', pd.harga_satuan) SEPARATOR ', ') AS Detail_Obat,
+    p.`Tipe Pembayaran` AS Tipe_Pembayaran,
+    IFNULL(p.Bukti_transfer, '') AS Bukti_Transfer
+FROM 
+    tb_pesanan p
+JOIN 
+    tb_pelanggan pl ON p.Id_pelanggan = pl.Id_pelanggan
+JOIN 
+    tb_pesanan_detail pd ON p.Id_pesanan = pd.Id_pesanan
+JOIN 
+    tb_obat o ON pd.Id_obat = o.Id_Obat
+WHERE 
+    p.status = 'PENDING'
+GROUP BY 
+    p.Id_pesanan, pl.username, pl.alamat, pl.no_tlp, p.`Tipe Pembayaran`, p.Bukti_transfer
+ORDER BY 
+    p.tanggal_pesanan ASC;
+
 ");
 ?>
 <!DOCTYPE html>

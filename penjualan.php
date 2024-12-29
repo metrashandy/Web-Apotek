@@ -32,7 +32,9 @@ $query = "
     JOIN 
         tb_obat o ON pd.Id_obat = o.Id_Obat
     GROUP BY 
-        p.`Id_penjualan`;
+        p.`Id_penjualan`
+    ORDER BY 
+        p.`Tanggal_penjualan` DESC;
 ";
 $result = $mysqli->query($query);
 
