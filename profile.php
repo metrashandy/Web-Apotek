@@ -107,10 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const input = document.getElementById(inputId);
             input.type = input.type === 'password' ? 'text' : 'password';
         }
-
-        function showPopup() {
-            alert("Fitur ini belum diimplementasikan.");
-        }
     </script>
 </head>
 
