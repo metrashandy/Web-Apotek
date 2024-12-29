@@ -1,6 +1,7 @@
 <?php
 require_once 'check_admin.php';
 checkAdmin();
+
 // Koneksi ke database
 $mysqli = new mysqli("localhost", "root", "", "apotek");
 if ($mysqli->connect_error) {
@@ -41,7 +42,11 @@ $result = $mysqli->query("
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom CSS mirip pembelian.php -->
+    <!-- Tambahkan library html2canvas dan jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Custom CSS agar mirip pembelian.php / history_belanja.php -->
     <style>
         body {
             background-color: #f8f9fa;
@@ -69,10 +74,27 @@ $result = $mysqli->query("
             color: #6c757d;
         }
 
-        /* Styling untuk modal */
-        .modal-header {
-            background-color: #0d6efd;
-            color: #ffffff;
+        /* Overlay mirip history_belanja.php */
+        #modalRincian {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        #modalInner {
+            position: relative;
+            top: 5%;
+            margin: 0 auto;
+            max-width: 50rem;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .close-button {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -118,13 +140,16 @@ $result = $mysqli->query("
                                 </td>
                                 <td>
                                     <!-- Tombol Tampilkan Struk -->
-                                    <button type="button" class="btn btn-info btn-sm" onclick='tampilkanStruk(<?= json_encode([
-                                                                                                                    'ID_Pesanan'       => $row['ID_Pesanan'],
-                                                                                                                    'Nama_Pelanggan'   => $row['Nama_Pelanggan'],
-                                                                                                                    'Alamat'           => $row['Alamat'],
-                                                                                                                    'Detail_Obat'      => $row['Detail_Obat'],
-                                                                                                                    'Tipe_Pembayaran'  => $row['Tipe_Pembayaran']
-                                                                                                                ]) ?>)'>
+                                    <button
+                                        type="button"
+                                        class="btn btn-info btn-sm"
+                                        onclick='tampilkanStruk(<?= json_encode([
+                                                                    'ID_Pesanan'      => $row['ID_Pesanan'],
+                                                                    'Nama_Pelanggan'  => $row['Nama_Pelanggan'],
+                                                                    'Alamat'          => $row['Alamat'],
+                                                                    'Detail_Obat'     => $row['Detail_Obat'],
+                                                                    'Tipe_Pembayaran' => $row['Tipe_Pembayaran']
+                                                                ]) ?>)'>
                                         Tampilkan Struk
                                     </button>
                                     <!-- Tombol Konfirmasi Pesanan -->
@@ -146,43 +171,60 @@ $result = $mysqli->query("
         </div>
     </div>
 
-    <!-- Modal Struk Pesanan -->
-    <div class="modal fade" id="modalStruk" tabindex="-1" aria-labelledby="modalStrukLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Struk Pesanan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Modal Rincian (mirip style di history_belanja.php) -->
+    <div id="modalRincian">
+        <div id="modalInner" class="p-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
+                <h4 class="fw-bold">Struk Pesanan</h4>
+                <span class="close-button text-muted" onclick="tutupModal()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Isi Struk -->
+            <div class="mt-4" id="struk-container">
+                <p><strong>ID Pesanan:</strong> <span id="strukId"></span></p>
+                <p><strong>Nama Pelanggan:</strong> <span id="strukPelanggan"></span></p>
+                <p><strong>Alamat:</strong> <span id="strukAlamat"></span></p>
+                <p><strong>Tipe Pembayaran:</strong> <span id="strukTipePembayaran"></span></p>
+
+                <h5>Detail Obat</h5>
+                <div class="table-responsive border rounded">
+                    <table class="table table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Jumlah</th>
+                                <th>Harga Satuan</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="strukItems"></tbody>
+                    </table>
                 </div>
-                <div class="modal-body">
-                    <div id="strukContent">
-                        <p><strong>ID Pesanan:</strong> <span id="strukId"></span></p>
-                        <p><strong>Nama Pelanggan:</strong> <span id="strukPelanggan"></span></p>
-                        <p><strong>Alamat:</strong> <span id="strukAlamat"></span></p>
-                        <p><strong>Tipe Pembayaran:</strong> <span id="strukTipePembayaran"></span></p>
-                        <h5>Detail Obat</h5>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Nama Barang</th>
-                                    <th>Jumlah</th>
-                                    <th>Harga Satuan</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody id="strukItems"></tbody>
-                        </table>
-                        <p><strong>Total Harga:</strong> <span id="strukTotalHarga"></span></p>
-                        <p><strong>Biaya Pengiriman:</strong> Rp. 10,000</p>
-                        <p><strong>Total Bayar:</strong> <span id="strukTotalBayar"></span></p>
-                    </div>
+
+                <!-- Ringkasan -->
+                <div class="mt-3">
+                    <p><strong>Total Harga:</strong> <span id="strukTotalHarga"></span></p>
+                    <p><strong>Biaya Pengiriman:</strong> Rp. 10.000</p>
+                    <p><strong>Total Bayar:</strong> <span id="strukTotalBayar"></span></p>
                 </div>
+            </div>
+
+            <!-- Tombol Simpan Struk -->
+            <div class="text-end mt-4">
+                <button class="btn btn-primary" onclick="simpanStruk()">Simpan Struk</button>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS dan Dependensi -->
+    <!-- Bootstrap 5 JS (opsional untuk komponen lain) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         function tampilkanStruk(data) {
             document.getElementById("strukId").innerText = data.ID_Pesanan;
@@ -190,18 +232,18 @@ $result = $mysqli->query("
             document.getElementById("strukAlamat").innerText = data.Alamat;
             document.getElementById("strukTipePembayaran").innerText = data.Tipe_Pembayaran;
 
-            const items = data.Detail_Obat.split(", ");
+            const items = data.Detail_Obat ? data.Detail_Obat.split(", ") : [];
             const tbody = document.getElementById("strukItems");
             tbody.innerHTML = "";
 
             let totalHarga = 0;
-
             items.forEach((item) => {
                 const [nama, jumlah, harga] = item.split(";");
                 const subtotal = parseInt(jumlah) * parseInt(harga);
                 totalHarga += subtotal;
 
-                const row = `<tr>
+                const row = `
+            <tr>
                 <td>${nama}</td>
                 <td>${jumlah}</td>
                 <td>Rp. ${parseInt(harga).toLocaleString('id-ID')}</td>
@@ -214,15 +256,52 @@ $result = $mysqli->query("
             document.getElementById("strukTotalHarga").innerText = `Rp. ${totalHarga.toLocaleString('id-ID')}`;
             document.getElementById("strukTotalBayar").innerText = `Rp. ${(totalHarga + biayaPengiriman).toLocaleString('id-ID')}`;
 
-            const modal = new bootstrap.Modal(document.getElementById("modalStruk"));
-            modal.show();
+            // Tampilkan overlay
+            document.getElementById("modalRincian").style.display = 'block';
+        }
+
+        function tutupModal() {
+            document.getElementById("modalRincian").style.display = 'none';
+        }
+
+        // Menutup modal jika klik di luar area modalInner
+        document.getElementById("modalRincian").addEventListener("click", function(e) {
+            if (e.target.id === "modalRincian") {
+                tutupModal();
+            }
+        });
+
+        // Fungsi menyimpan struk jadi PDF mirip history_belanja
+        async function simpanStruk() {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF("p", "pt", "a4");
+            const strukElement = document.getElementById('struk-container');
+
+            await html2canvas(strukElement).then((canvas) => {
+                const imageData = canvas.toDataURL('image/png');
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const imgProps = doc.getImageProperties(imageData);
+                const pdfWidth = pageWidth;
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                doc.addImage(
+                    imageData,
+                    'PNG',
+                    0,
+                    0,
+                    pdfWidth,
+                    pdfHeight
+                );
+            });
+            doc.save('struk-pesanan.pdf');
         }
     </script>
+
 </body>
 
 </html>
-
 <?php
-// Menutup koneksi database
 $mysqli->close();
 ?>

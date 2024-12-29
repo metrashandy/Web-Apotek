@@ -346,7 +346,7 @@
             <!-- Tombol Simpan Struk -->
             <div class="flex justify-end mt-4">
                 <button
-                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                     onclick="simpanStruk()">
                     Simpan Struk
                 </button>

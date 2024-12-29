@@ -46,32 +46,26 @@ if (!$result) {
     <title>Daftar Pembelian</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS untuk Penyesuaian -->
+    <!-- Tailwind/Custom CSS (mirroring style from history_belanja) -->
     <style>
         body {
             background-color: #f8f9fa;
-            /* Warna latar belakang netral */
         }
 
         .table-wrapper {
             background-color: #ffffff;
-            /* Latar belakang putih untuk tabel */
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            /* Bayangan untuk kedalaman */
         }
 
         .table-header {
             background-color: #0d6efd;
-            /* Warna biru Bootstrap untuk header tabel */
             color: #ffffff;
-            /* Teks putih */
         }
 
         .table-hover tbody tr:hover {
             background-color: #e9ecef;
-            /* Efek hover pada baris tabel */
         }
 
         .no-data {
@@ -84,51 +78,34 @@ if (!$result) {
             margin-bottom: 20px;
         }
 
-        /* Styling untuk Modal */
-        .modal-header {
-            background-color: #0d6efd;
-            color: #ffffff;
+        /* Modal overlay style (similar to history_belanja) */
+        #modalRincian {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            /* Above bootstrap modal z-index */
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        #modalInner {
+            position: relative;
+            top: 5%;
+            margin: 0 auto;
+            max-width: 50rem;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .close-button {
+            cursor: pointer;
         }
     </style>
-    <script>
-        function tampilkanPembelian(data) {
-            document.getElementById("pembelianId").innerText = data.ID_pembelian;
-            document.getElementById("pembelianSuplier").innerText = data.suplier; // Nama suplier
-            document.getElementById("pembelianTanggal").innerText = data.tanggal;
-
-            // Rincian item
-            const items = data.Rincian_Item ? data.Rincian_Item.split(", ") : [];
-            const tbody = document.getElementById("pembelianItems");
-            tbody.innerHTML = "";
-
-            let totalHarga = 0;
-
-            if (items.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='4' class='text-center'>Tidak ada data</td></tr>";
-            } else {
-                items.forEach((item) => {
-                    const [nama, jumlah, harga] = item.split(";");
-                    const subtotal = (jumlah && harga) ? jumlah * harga : 0;
-                    totalHarga += subtotal;
-
-                    const row = `<tr>
-                        <td>${nama}</td>
-                        <td>${jumlah || 0}</td>
-                        <td>Rp ${parseInt(harga).toLocaleString('id-ID')}</td>
-                        <td>Rp ${subtotal.toLocaleString('id-ID')}</td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                });
-            }
-
-            document.getElementById("pembelianTotalHarga").innerText = `Rp ${totalHarga.toLocaleString('id-ID')}`;
-            document.getElementById("pembelianTotalBayar").innerText = data.Total_bayar ? `Rp ${parseInt(data.Total_bayar).toLocaleString('id-ID')}` : "Rp 0";
-            document.getElementById("pembelianKembalian").innerText = data.Kembalian ? `Rp ${parseInt(data.Kembalian).toLocaleString('id-ID')}` : "Rp 0";
-
-            const modal = new bootstrap.Modal(document.getElementById("modalPembelian"));
-            modal.show();
-        }
-    </script>
+    <!-- Tambahkan library html2canvas dan jsPDF untuk menyimpan struk -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -144,7 +121,7 @@ if (!$result) {
             <a class="btn btn-success" href="index.php?page=pembelian.form&action=add" role="button">Tambah Pembelian</a>
         </div>
 
-        <!-- Pembungkus Tabel dengan Styling yang Ditingkatkan -->
+        <!-- Pembungkus Tabel -->
         <div class="table-wrapper">
             <table class="table table-striped table-hover">
                 <thead class="table-header">
@@ -169,17 +146,21 @@ if (!$result) {
                                 <td><?= htmlspecialchars($row['Item']) ?></td>
                                 <td>Rp <?= number_format($row['Harga'], 0, ',', '.') ?></td>
                                 <td>
-                                    <button type="button" class="btn btn-info btn-sm me-2" onclick='tampilkanPembelian(<?= json_encode($row) ?>)'>
-                                        Detail
+                                    <button type="button"
+                                        class="btn btn-info btn-sm me-2"
+                                        onclick='tampilkanPembelian(<?= json_encode($row) ?>)'>
+                                        Tampilkan Struk
                                     </button>
-                                    <a class="btn btn-primary btn-sm me-2" href="index.php?page=pembelian.form&Id_pembelian=<?= urlencode($row['ID_pembelian']) ?>&action=edit">
+                                    <a class="btn btn-primary btn-sm me-2"
+                                        href="index.php?page=pembelian.form&Id_pembelian=<?= urlencode($row['ID_pembelian']) ?>&action=edit">
                                         Perbarui
                                     </a>
                                     <form action="pembelian.action.php" method="POST" class="d-inline">
                                         <input type="hidden" name="Id_pembelian" value="<?= htmlspecialchars($row['ID_pembelian']) ?>">
                                         <input type="hidden" name="Id_obat" value="<?= htmlspecialchars($row['Id_obat']) ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ingin menghapus data ini?');">
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Ingin menghapus data ini?');">
                                             Hapus
                                         </button>
                                     </form>
@@ -196,47 +177,152 @@ if (!$result) {
         </div>
     </div>
 
-    <!-- Modal Detail Pembelian -->
-    <div class="modal fade" id="modalPembelian" tabindex="-1" aria-labelledby="modalPembelianLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Detail Pembelian</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="pembelianContent">
-                        <p><strong>ID Pembelian:</strong> <span id="pembelianId"></span></p>
-                        <p><strong>Nama Suplier:</strong> <span id="pembelianSuplier"></span></p>
-                        <p><strong>Tanggal Pembelian:</strong> <span id="pembelianTanggal"></span></p>
-                        <h5>Rincian Item</h5>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Nama Item</th>
-                                    <th>Jumlah</th>
-                                    <th>Harga Satuan</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pembelianItems"></tbody>
-                        </table>
-                        <p><strong>Total Harga:</strong> <span id="pembelianTotalHarga"></span></p>
-                        <p><strong>Total Bayar:</strong> <span id="pembelianTotalBayar"></span></p>
-                        <p><strong>Kembalian:</strong> <span id="pembelianKembalian"></span></p>
+    <!-- Modal Detail (mirroring style from history_belanja) -->
+    <div id="modalRincian">
+        <div id="modalInner" class="p-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
+                <h4 class="fw-bold">Detail Pembelian</h4>
+                <span class="close-button text-muted" onclick="tutupModal()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Container struk (mirroring history_belanja) -->
+            <div class="mt-4" id="struk-container">
+                <!-- Info Pembelian -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <p class="text-secondary mb-1">ID Pembelian</p>
+                        <p class="fw-medium" id="pembelianId"></p>
+                    </div>
+                    <div class="col-6">
+                        <p class="text-secondary mb-1">Nama Suplier</p>
+                        <p class="fw-medium" id="pembelianSuplier"></p>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <p class="text-secondary mb-1">Tanggal Pembelian</p>
+                        <p class="fw-medium" id="pembelianTanggal"></p>
+                    </div>
+                </div>
+
+                <!-- Tabel Rincian -->
+                <div class="table-responsive border rounded">
+                    <table class="table table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Nama Item</th>
+                                <th scope="col">Jumlah</th>
+                                <th scope="col">Harga Satuan</th>
+                                <th scope="col">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pembelianItems">
+                            <!-- Baris item pembelian -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Ringkasan Biaya -->
+                <div class="mt-3">
+                    <p class="mb-1"><strong>Total Harga:</strong> <span id="pembelianTotalHarga"></span></p>
+                    <p class="mb-1"><strong>Total Bayar:</strong> <span id="pembelianTotalBayar"></span></p>
+                    <p class="mb-1"><strong>Kembalian:</strong> <span id="pembelianKembalian"></span></p>
+                </div>
+            </div>
+
+            <!-- Tombol Simpan Struk -->
+            <div class="text-end mt-4">
+                <button class="btn btn-primary" onclick="simpanStruk()">Simpan Struk</button>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS dan Dependensi -->
+    <!-- Bootstrap 5 JS & Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function tampilkanPembelian(data) {
+            document.getElementById("pembelianId").innerText = data.ID_pembelian;
+            document.getElementById("pembelianSuplier").innerText = data.suplier;
+            document.getElementById("pembelianTanggal").innerText = data.tanggal;
+
+            const items = data.Rincian_Item ? data.Rincian_Item.split(", ") : [];
+            const tbody = document.getElementById("pembelianItems");
+            tbody.innerHTML = "";
+
+            let totalHarga = 0;
+
+            if (items.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' class='text-center'>Tidak ada data</td></tr>";
+            } else {
+                items.forEach((item) => {
+                    const [nama, jumlah, harga] = item.split(";");
+                    const subtotal = (jumlah && harga) ? jumlah * harga : 0;
+                    totalHarga += subtotal;
+
+                    const row = `
+                        <tr>
+                            <td>${nama}</td>
+                            <td>${jumlah || 0}</td>
+                            <td>Rp ${parseInt(harga).toLocaleString('id-ID')}</td>
+                            <td>Rp ${subtotal.toLocaleString('id-ID')}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            }
+
+            document.getElementById("pembelianTotalHarga").innerText = `Rp ${totalHarga.toLocaleString('id-ID')}`;
+            document.getElementById("pembelianTotalBayar").innerText = data.Total_bayar ?
+                `Rp ${parseInt(data.Total_bayar).toLocaleString('id-ID')}` :
+                "Rp 0";
+            document.getElementById("pembelianKembalian").innerText = data.Kembalian ?
+                `Rp ${parseInt(data.Kembalian).toLocaleString('id-ID')}` :
+                "Rp 0";
+
+            // Tampilkan overlay
+            document.getElementById("modalRincian").style.display = 'block';
+        }
+
+        function tutupModal() {
+            document.getElementById("modalRincian").style.display = 'none';
+        }
+
+        // Menutup modal jika klik di luar area konten
+        document.getElementById("modalRincian").addEventListener("click", function(e) {
+            if (e.target.id === "modalRincian") {
+                tutupModal();
+            }
+        });
+
+        // Fungsi menyimpan struk
+        async function simpanStruk() {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF("p", "pt", "a4");
+            const strukElement = document.getElementById('struk-container');
+
+            await html2canvas(strukElement).then((canvas) => {
+                const imageData = canvas.toDataURL('image/png');
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const imgProps = doc.getImageProperties(imageData);
+                const pdfWidth = pageWidth;
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                doc.addImage(imageData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            });
+            doc.save('struk-pembelian.pdf');
+        }
+    </script>
 </body>
 
 </html>
-
 <?php
-// Menutup koneksi database
 $mysqli->close();
 ?>
