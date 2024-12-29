@@ -39,183 +39,304 @@ $resultPelanggan = $conn->query($queryPelanggan);
 $queryObat = "SELECT Id_Obat, Nama_Obat, Harga_Satuan FROM tb_obat";
 $resultObat = $conn->query($queryObat);
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Transaksi Penjualan</title>
-    <script>
-        // Fungsi untuk menambah baris baru
-        function tambahBaris(data = null) {
-            const table = document.getElementById("tabelObat");
-            const row = table.insertRow(-1);
-
-            row.innerHTML = `
-                <td>
-                    <select name="Id_obat[]" class="selectObat" onchange="updateHarga(this)" required>
-                        <option value="">-- Pilih Obat --</option>
-                        <?php
-                        $resultObat->data_seek(0); // Reset pointer untuk mengulang data
-                        while ($row = $resultObat->fetch_assoc()) {
-                            echo '<option value="' . $row['Id_Obat'] . '" data-harga="' . $row['Harga_Satuan'] . '">' . $row['Nama_Obat'] . '</option>';
-                        }
-                        ?>
-                    </select>
-                </td>
-                <td><input type="text" name="jumlah_item[]" value="${data ? data.jumlah_item : 1}" min="1" oninput="updateTotal()" required></td>
-                <td><input type="text" name="harga_satuan[]" value="${data ? data.harga_satuan : ''}" min="1" oninput="updateTotal()" required></td>
-                <td><button type="button" onclick="hapusBaris(this)">Hapus</button></td>
-            `;
-
-            if (data) {
-                const select = row.querySelector("select");
-                select.value = data.Id_obat;
-                updateHarga(select);
-            }
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Custom CSS (mirip pembelian.form.php) -->
+    <style>
+        body {
+            background-color: #f8f9fa;
         }
-
-        function hitungKembalian() {
-            const totalHarga = parseInt(document.getElementById("harga_total").value) || 0;
-            const totalBayar = parseInt(document.getElementById("total_bayar").value) || 0;
-
-            let kembalian = totalBayar - totalHarga;
-            if (kembalian < 0) {
-                kembalian = 0; // Tidak ada kembalian negatif
-            }
-            document.getElementById("kembalian").value = kembalian;
+        .form-wrapper {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
         }
-
-        function validasiForm() {
-            const totalHarga = parseInt(document.getElementById("harga_total").value) || 0;
-            const totalBayar = parseInt(document.getElementById("total_bayar").value) || 0;
-
-            if (totalBayar < totalHarga) {
-                alert("Total bayar tidak boleh kurang dari total harga.");
-                return false;
-            }
-            return true;
+        .form-header {
+            margin-bottom: 20px;
+            text-align: center;
         }
-
-        // Fungsi untuk menghapus baris
-        function hapusBaris(button) {
-            const row = button.parentElement.parentElement;
-            row.remove();
-            updateTotal();
+        .btn-remove {
+            color: #dc3545;
+            border: none;
+            background: none;
+            cursor: pointer;
         }
-
-        // Fungsi untuk memperbarui harga berdasarkan pilihan obat
-        function updateHarga(select) {
-            const harga = select.options[select.selectedIndex].getAttribute("data-harga");
-            const hargaInput = select.parentElement.nextElementSibling.nextElementSibling.querySelector("input");
-            hargaInput.value = harga || '';
-            updateTotal();
+        .btn-remove:hover {
+            color: #a71d2a;
         }
-
-        // Fungsi untuk menghitung total item dan total harga
-        function updateTotal() {
-            const jumlahItems = document.getElementsByName('jumlah_item[]');
-            const hargaSatuans = document.getElementsByName('harga_satuan[]');
-
-            let totalItem = 0;
-            let totalHarga = 0;
-
-            for (let i = 0; i < jumlahItems.length; i++) {
-                const jumlah = parseInt(jumlahItems[i].value) || 0;
-                const harga = parseInt(hargaSatuans[i].value) || 0;
-
-                totalItem += jumlah;
-                totalHarga += jumlah * harga;
-            }
-
-            // Perbarui input total item dan harga total
-            document.getElementById('jumlah_item').value = totalItem;
-            document.getElementById('harga_total').value = totalHarga;
-        }
-
-        function simpanTransaksi(event) {
-            event.preventDefault();
-            const form = document.querySelector('form[action="penjualan.action.php"]');
-            const formData = new FormData(form);
-
-            fetch('penjualan.action.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    alert('Transaksi berhasil disimpan!');
-                    window.location.href = "index.php?page=penjualan";
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat menyimpan data.');
-                });
-        }
-    </script>
+    </style>
 </head>
 
 <body>
-    <h1>Form Transaksi Penjualan</h1>
-    <form action="penjualan.action.php" method="POST" onsubmit="return validasiForm()">
-        <input type="hidden" name="action" value="<?php echo $Id_penjualan ? 'edit' : 'add'; ?>">
-        <input type="hidden" name="Id_penjualan" value="<?php echo $dataPenjualan['Id_penjualan'] ?? ''; ?>">
+<div class="container my-5">
+    <div class="form-wrapper">
+        <!-- Judul Halaman -->
+        <div class="form-header">
+            <h2 class="<?php echo ($Id_penjualan) ? "text-primary" : "text-success"; ?>">
+                <?php echo ($Id_penjualan) ? "Edit Transaksi Penjualan" : "Tambah Transaksi Penjualan"; ?>
+            </h2>
+        </div>
 
-        <label for="Tanggal_penjualan">Tanggal Penjualan:</label>
-        <input type="date" name="Tanggal_penjualan" value="<?php echo $dataPenjualan['Tanggal_penjualan'] ?? ''; ?>" required><br><br>
+        <form action="penjualan.action.php" method="POST" id="formPenjualan" onsubmit="return validasiForm()" class="needs-validation" novalidate>
+            <input type="hidden" name="action" value="<?php echo $Id_penjualan ? 'edit' : 'add'; ?>">
+            <input type="hidden" name="Id_penjualan" value="<?php echo htmlspecialchars($dataPenjualan['Id_penjualan'] ?? ''); ?>">
 
-        <label for="Id_pelanggan">Pelanggan:</label>
-        <select name="Id_pelanggan" required>
-            <?php while ($row = $resultPelanggan->fetch_assoc()) { ?>
-                <option value="<?php echo $row['Id_pelanggan']; ?>"
-                    <?php echo ($dataPenjualan['Id_pelanggan'] ?? '') == $row['Id_pelanggan'] ? 'selected' : ''; ?>>
-                    <?php echo $row['username']; ?>
-                </option>
-            <?php } ?>
-        </select><br><br>
+            <div class="mb-3">
+                <label for="Tanggal_penjualan" class="form-label">Tanggal Penjualan:</label>
+                <input type="date" name="Tanggal_penjualan" id="Tanggal_penjualan" class="form-control" 
+                       value="<?php echo htmlspecialchars($dataPenjualan['Tanggal_penjualan'] ?? ''); ?>" required>
+            </div>
 
-        <table id="tabelObat" border="1">
-            <thead>
-                <tr>
-                    <th>Obat</th>
-                    <th>Jumlah Item</th>
-                    <th>Harga Satuan</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($dataDetail) {
-                    foreach ($dataDetail as $detail) {
-                        echo "<script>tambahBaris(" . json_encode($detail) . ");</script>";
-                    }
-                } else {
-                    echo "<script>tambahBaris();</script>";
-                }
-                ?>
-            </tbody>
-        </table>
-        <br>
-        <button type="button" onclick="tambahBaris()">Tambah Obat</button><br><br>
+            <div class="mb-3">
+                <label for="Id_pelanggan" class="form-label">Pelanggan:</label>
+                <select name="Id_pelanggan" id="Id_pelanggan" class="form-select" required>
+                    <option value="">-- Pilih Pelanggan --</option>
+                    <?php while ($row = $resultPelanggan->fetch_assoc()) { ?>
+                        <option value="<?php echo $row['Id_pelanggan']; ?>"
+                            <?php echo (($dataPenjualan['Id_pelanggan'] ?? '') == $row['Id_pelanggan']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($row['username']); ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
 
-        <label for="jumlah_item">Total Item:</label>
-        <input type="number" id="jumlah_item" name="Total_item" value="<?php echo $dataPenjualan['Total_item'] ?? 0; ?>" readonly><br><br>
+            <div class="table-responsive">
+                <table id="tabelObat" class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Obat</th>
+                        <th>Jumlah Item</th>
+                        <th>Harga Satuan</th>
+                        <th>Aksi</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Baris Obat Akan Ditambahkan Secara Dinamis -->
+                    </tbody>
+                </table>
+            </div>
 
-        <label for="harga_total">Total Harga:</label>
-        <input type="number" id="harga_total" name="harga_total" value="<?php echo $dataPenjualan['harga_total'] ?? 0; ?>" readonly><br><br>
+            <button type="button" class="btn btn-secondary mb-3" onclick="tambahBaris()">
+                <i class="bi bi-plus-circle-fill"></i> Tambah Obat
+            </button>
 
-        <label for="total_bayar">Total Bayar:</label>
-        <input type="number" id="total_bayar" name="Total_bayar"
-            value="<?php echo $dataPenjualan['Total_bayar'] ?? 0; ?>"
-            min="0" oninput="hitungKembalian()" required><br><br>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="jumlah_item" class="form-label">Total Item:</label>
+                    <input type="number" id="jumlah_item" name="Total_item"
+                           class="form-control" value="<?php echo htmlspecialchars($dataPenjualan['Total_item'] ?? 0); ?>" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label for="harga_total" class="form-label">Total Harga:</label>
+                    <input type="number" id="harga_total" name="harga_total"
+                           class="form-control" value="<?php echo htmlspecialchars($dataPenjualan['harga_total'] ?? 0); ?>" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label for="total_bayar" class="form-label">Total Bayar:</label>
+                    <input type="number" id="total_bayar" name="Total_bayar"
+                           class="form-control"
+                           value="<?php echo htmlspecialchars($dataPenjualan['Total_bayar'] ?? 0); ?>"
+                           min="0" oninput="hitungKembalian()" required>
+                </div>
+            </div>
 
-        <label for="kembalian">Kembalian:</label>
-        <input type="number" id="kembalian" name="Kembalian" value="<?php echo $dataPenjualan['Kembalian'] ?? 0; ?>" readonly><br><br>
+            <div class="row g-3 mt-3">
+                <div class="col-md-4">
+                    <label for="kembalian" class="form-label">Kembalian:</label>
+                    <input type="number" id="kembalian" name="Kembalian"
+                           class="form-control" value="<?php echo htmlspecialchars($dataPenjualan['Kembalian'] ?? 0); ?>" readonly>
+                </div>
+            </div>
 
-        <button type="submit">Simpan Transaksi</button>
-    </form>
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-save-fill"></i> Simpan Transaksi
+                </button>
+                <a href="index.php?page=penjualan" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left-circle-fill"></i> Kembali
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS dan Dependensi -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Fungsi untuk menambah baris baru
+    function tambahBaris(data = null) {
+        const tableBody = document.getElementById("tabelObat").getElementsByTagName("tbody")[0];
+        const row = tableBody.insertRow();
+
+        // Kolom Obat
+        const cellObat = row.insertCell(0);
+        let selectObat = document.createElement("select");
+        selectObat.name = "Id_obat[]";
+        selectObat.className = "form-select";
+        selectObat.required = true;
+        selectObat.onchange = function() {
+            updateHarga(this);
+        };
+
+        let defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.text = "-- Pilih Obat --";
+        selectObat.appendChild(defaultOption);
+
+        <?php
+        // Kembalikan pointer data resultObat ke awal
+        $resultObat->data_seek(0);
+        while ($rowObat = $resultObat->fetch_assoc()) {
+                // Menggunakan 'var' untuk menghindari konflik deklarasi
+                echo "var option = document.createElement('option');";
+                echo "option.value = '{$rowObat['Id_Obat']}';";
+                echo "option.text = '{$rowObat['Nama_Obat']}';";
+                echo "selectObat.appendChild(option);";
+        }
+        ?>
+
+        cellObat.appendChild(selectObat);
+
+        // Kolom Jumlah Item
+        const cellJumlah = row.insertCell(1);
+        let inputJumlah = document.createElement("input");
+        inputJumlah.type = "number";
+        inputJumlah.name = "jumlah_item[]";
+        inputJumlah.className = "form-control";
+        inputJumlah.min = "1";
+        inputJumlah.required = true;
+        inputJumlah.oninput = updateTotal;
+        cellJumlah.appendChild(inputJumlah);
+
+        // Kolom Harga Satuan
+        const cellHarga = row.insertCell(2);
+        let inputHarga = document.createElement("input");
+        inputHarga.type = "number";
+        inputHarga.name = "harga_satuan[]";
+        inputHarga.className = "form-control";
+        inputHarga.min = "1";
+        inputHarga.required = true;
+        inputHarga.oninput = updateTotal;
+        cellHarga.appendChild(inputHarga);
+
+        // Kolom Aksi
+        const cellAksi = row.insertCell(3);
+        let btnHapus = document.createElement("button");
+        btnHapus.type = "button";
+        btnHapus.className = "btn-remove";
+        btnHapus.innerHTML = "<i class='bi bi-trash-fill'></i> Hapus";
+        btnHapus.onclick = function() {
+            hapusBaris(this);
+        };
+        cellAksi.appendChild(btnHapus);
+
+        // Jika data ada (untuk edit), set nilai input
+        if (data) {
+            selectObat.value = data.Id_obat;
+            inputJumlah.value = data.jumlah_item;
+            inputHarga.value = data.harga_satuan;
+        }
+
+        updateTotal();
+    }
+
+    // Fungsi untuk memperbarui harga berdasarkan pilihan obat
+    function updateHarga(select) {
+        const harga = select.options[select.selectedIndex].getAttribute("data-harga");
+        const inputHarga = select.parentElement.parentElement.cells[2].querySelector("input");
+        inputHarga.value = harga || "";
+        updateTotal();
+    }
+
+    // Fungsi untuk hapus baris
+    function hapusBaris(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+        updateTotal();
+    }
+
+    // Fungsi untuk menghitung total item dan total harga
+    function updateTotal() {
+        const jumlahItems = document.getElementsByName("jumlah_item[]");
+        const hargaSatuans = document.getElementsByName("harga_satuan[]");
+        let totalItem = 0;
+        let totalHarga = 0;
+
+        for (let i = 0; i < jumlahItems.length; i++) {
+            const jml = parseInt(jumlahItems[i].value) || 0;
+            const hrg = parseInt(hargaSatuans[i].value) || 0;
+            totalItem += jml;
+            totalHarga += jml * hrg;
+        }
+
+        document.getElementById("jumlah_item").value = totalItem;
+        document.getElementById("harga_total").value = totalHarga;
+        hitungKembalian();
+    }
+
+    // Fungsi untuk menghitung kembalian
+    function hitungKembalian() {
+        const totalHarga = parseInt(document.getElementById("harga_total").value) || 0;
+        const totalBayar = parseInt(document.getElementById("total_bayar").value) || 0;
+        let kembalian = totalBayar - totalHarga;
+        document.getElementById("kembalian").value = (kembalian >= 0) ? kembalian : 0;
+    }
+
+    // Validasi form
+    function validasiForm() {
+        const totalHarga = parseInt(document.getElementById("harga_total").value) || 0;
+        const totalBayar = parseInt(document.getElementById("total_bayar").value) || 0;
+        if (totalBayar < totalHarga) {
+            alert("Total bayar tidak boleh kurang dari total harga.");
+            return false;
+        }
+        return true;
+    }
+
+    // Menambahkan baris secara otomatis jika ada data detail (edit)
+    window.addEventListener("DOMContentLoaded", () => {
+        <?php
+        if ($dataDetail) {
+            foreach ($dataDetail as $detail) {
+                echo "tambahBaris(" . json_encode($detail) . ");";
+            }
+        } else {
+            echo "tambahBaris();";
+        }
+        ?>
+
+        // Contoh validasi form Bootstrap
+        (function() {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms)
+                .forEach(function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+        })();
+    });
+</script>
 </body>
-
 </html>
+
+<?php
+// Tutup koneksi
+$conn->close();
+?>

@@ -1,4 +1,6 @@
 <?php
+require_once 'check_admin.php';
+checkAdmin();
 // Koneksi ke database
 $mysqli = new mysqli("localhost", "root", "", "apotek");
 if ($mysqli->connect_error) {
