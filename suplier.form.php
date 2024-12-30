@@ -119,9 +119,14 @@ $mysqli->close();
         </div>
 
         <!-- No Telepon Suplier -->
+        <!-- No Telepon Suplier -->
         <div class="mb-3">
           <label for="no_tlp" class="form-label">No Telepon</label>
-          <input type="text" class="form-control" name="no_tlp" id="no_tlp" placeholder="Tuliskan nomor telepon suplier di sini" value="<?php echo htmlspecialchars($telepon); ?>" required>
+          <input type="text" class="form-control" name="no_tlp" id="no_tlp"
+            placeholder="Tuliskan nomor telepon suplier di sini"
+            value="<?php echo htmlspecialchars($telepon); ?>"
+            required pattern="\d*"
+            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
 
         <!-- Aksi -->

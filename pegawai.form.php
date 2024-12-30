@@ -115,9 +115,14 @@ $mysqli->close();
         </div>
 
         <!-- Telepon Pegawai -->
+        <!-- No Telepon Pegawai -->
         <div class="mb-3">
-          <label for="No_tlp" class="form-label">Telepon</label>
-          <input type="text" class="form-control" name="No_tlp" id="No_tlp" placeholder="Tuliskan nomor telepon di sini" value="<?php echo htmlspecialchars($telepon); ?>" required>
+          <label for="No_tlp" class="form-label">Nomor Telepon</label>
+          <input type="text" class="form-control" name="No_tlp" id="No_tlp"
+            placeholder="Masukkan nomor telepon pegawai"
+            value="<?php echo htmlspecialchars($row['No_tlp'] ?? ''); ?>"
+            required pattern="\d*"
+            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
 
         <!-- Email Pegawai -->

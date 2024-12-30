@@ -45,7 +45,8 @@ require "koneksi.php";
                 <div class="mb-4">
                     <label for="InputTelepon" class="block text-gray-700 font-semibold mb-2">Nomor Telepon</label>
                     <input type="text" name="telepon" id="InputTelepon" placeholder="Masukkan Nomor Telepon"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-cyan-300" required>
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-cyan-300"
+                        required pattern="\d*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
                 <div class="mb-4">
                     <label for="InputRumah" class="block text-gray-700 font-semibold mb-2">Alamat Rumah</label>
