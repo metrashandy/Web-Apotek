@@ -31,7 +31,6 @@ if ($result) {
   <link href="src/output.css" rel="stylesheet">
 </head>
 <style>
-
   #payment-popup,
   #bank-popup {
     position: fixed;
@@ -339,13 +338,23 @@ if ($result) {
                 <span class="text-gray-700"><?php echo $prod['stok_obat']; ?></span>
               </p>
               <!-- Tombol Pesan Sekarang -->
-              <button
-                class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition
-              <?php echo $prod['stok_obat'] <= 0 ? 'opacity-50 cursor-not-allowed' : ''; ?>"
-                onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>, <?php echo (int)$prod['stok_obat']; ?>)"
-                <?php echo $prod['stok_obat'] <= 0 ? 'disabled' : ''; ?>>
-                <?php echo $prod['stok_obat'] <= 0 ? 'Stok Habis' : 'Pesan Sekarang'; ?>
-              </button>
+              <?php if (isset($_SESSION['login']) && $_SESSION['login'] === true): ?>
+                <!-- Jika sudah login, gunakan tombol aslinya -->
+                <button
+                  class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition
+    <?php echo $prod['stok_obat'] <= 0 ? 'opacity-50 cursor-not-allowed' : ''; ?>"
+                  onclick="addToCart(<?php echo (int)$prod['id_obat']; ?>, <?php echo (int)$prod['stok_obat']; ?>)"
+                  <?php echo $prod['stok_obat'] <= 0 ? 'disabled' : ''; ?>>
+                  <?php echo $prod['stok_obat'] <= 0 ? 'Stok Habis' : 'Pesan Sekarang'; ?>
+                </button>
+              <?php else: ?>
+                <!-- Jika belum login, tampilkan peringatan dan arahkan ke halaman login -->
+                <button
+                  class="w-full py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
+                  onclick="alert('Anda harus login terlebih dahulu.'); window.location.href='login.php';">
+                  Pesan Sekarang
+                </button>
+              <?php endif; ?>
             </div>
         <?php
           }
