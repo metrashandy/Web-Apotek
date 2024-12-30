@@ -66,18 +66,6 @@ if ($action === 'process' && $Id_pesanan) {
         $stmtInsertDetail = $conn->prepare($queryInsertDetail);
 
         while ($detail = $resultDetail->fetch_assoc()) {
-            // Validasi stok obat sebelum pengurangan
-            $queryCekStok = "SELECT Stok_obat FROM tb_obat WHERE Id_obat = ?";
-            $stmtCekStok = $conn->prepare($queryCekStok);
-            $stmtCekStok->bind_param("i", $detail['Id_obat']);
-            $stmtCekStok->execute();
-            $resultStok = $stmtCekStok->get_result();
-            $stokObat = $resultStok->fetch_assoc();
-
-            if ($stokObat['Stok_obat'] < $detail['jumlah_item']) {
-                throw new Exception("Stok obat tidak mencukupi untuk obat dengan ID " . $detail['Id_obat']);
-            }
-
             // Tambahkan detail ke tb_penjualan_detail
             $stmtInsertDetail->bind_param(
                 "iiii",
@@ -87,12 +75,6 @@ if ($action === 'process' && $Id_pesanan) {
                 $detail['harga_satuan']
             );
             $stmtInsertDetail->execute();
-
-            // Kurangi stok obat
-            $queryUpdateStok = "UPDATE tb_obat SET Stok_obat = Stok_obat - ? WHERE Id_obat = ?";
-            $stmtUpdateStok = $conn->prepare($queryUpdateStok);
-            $stmtUpdateStok->bind_param("ii", $detail['jumlah_item'], $detail['Id_obat']);
-            $stmtUpdateStok->execute();
         }
 
         // Update status pesanan menjadi SELESAI
@@ -109,6 +91,8 @@ if ($action === 'process' && $Id_pesanan) {
         die("Gagal memproses pesanan: " . $e->getMessage());
     }
 }
+
+
 
 // Tambah atau edit data penjualan
 if ($action === 'add' || $action === 'edit') {
