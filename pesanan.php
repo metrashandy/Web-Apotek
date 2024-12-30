@@ -151,10 +151,12 @@ $result = $mysqli->query("
                                                                     'Nama_Pelanggan'  => $row['Nama_Pelanggan'],
                                                                     'Alamat'          => $row['Alamat'],
                                                                     'Detail_Obat'     => $row['Detail_Obat'],
-                                                                    'Tipe_Pembayaran' => $row['Tipe_Pembayaran']
+                                                                    'Tipe_Pembayaran' => $row['Tipe_Pembayaran'],
+                                                                    'Tanggal_Pemesanan' => $row['Tanggal_Pemesanan']
                                                                 ]) ?>)'>
                                         Tampilkan Struk
                                     </button>
+
                                     <!-- Tombol Konfirmasi Pesanan -->
                                     <form action="penjualan.action.php" method="POST" class="d-inline">
                                         <input type="hidden" name="action" value="process">
@@ -193,6 +195,7 @@ $result = $mysqli->query("
                 <p><strong>ID Pesanan:</strong> <span id="strukId"></span></p>
                 <p><strong>Nama Pelanggan:</strong> <span id="strukPelanggan"></span></p>
                 <p><strong>Alamat:</strong> <span id="strukAlamat"></span></p>
+                <p><strong>Tanggal Pemesanan:</strong> <span id="strukTanggalPemesanan"></span></p>
                 <p><strong>Tipe Pembayaran:</strong> <span id="strukTipePembayaran"></span></p>
 
                 <h5>Detail Obat</h5>
@@ -234,6 +237,7 @@ $result = $mysqli->query("
             document.getElementById("strukPelanggan").innerText = data.Nama_Pelanggan;
             document.getElementById("strukAlamat").innerText = data.Alamat;
             document.getElementById("strukTipePembayaran").innerText = data.Tipe_Pembayaran;
+            document.getElementById("strukTanggalPemesanan").innerText = data.Tanggal_Pemesanan;
 
             const items = data.Detail_Obat ? data.Detail_Obat.split(", ") : [];
             const tbody = document.getElementById("strukItems");
@@ -246,12 +250,12 @@ $result = $mysqli->query("
                 totalHarga += subtotal;
 
                 const row = `
-            <tr>
-                <td>${nama}</td>
-                <td>${jumlah}</td>
-                <td>Rp. ${parseInt(harga).toLocaleString('id-ID')}</td>
-                <td>Rp. ${subtotal.toLocaleString('id-ID')}</td>
-            </tr>`;
+        <tr>
+            <td>${nama}</td>
+            <td>${jumlah}</td>
+            <td>Rp. ${parseInt(harga).toLocaleString('id-ID')}</td>
+            <td>Rp. ${subtotal.toLocaleString('id-ID')}</td>
+        </tr>`;
                 tbody.innerHTML += row;
             });
 
@@ -259,9 +263,9 @@ $result = $mysqli->query("
             document.getElementById("strukTotalHarga").innerText = `Rp. ${totalHarga.toLocaleString('id-ID')}`;
             document.getElementById("strukTotalBayar").innerText = `Rp. ${(totalHarga + biayaPengiriman).toLocaleString('id-ID')}`;
 
-            // Tampilkan overlay
             document.getElementById("modalRincian").style.display = 'block';
         }
+
 
         function tutupModal() {
             document.getElementById("modalRincian").style.display = 'none';
